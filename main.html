@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>준주서의 육아일기</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    nav {
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+      font-size: 16px;
+      transition: color 0.2s ease;
+    }
+
+    nav a:hover {
+      color: #0056b3;
+    }
+
+    .main-content {
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    .main-content h2 {
+      font-size: 26px;
+      margin-bottom: 15px;
+    }
+
+    .main-content p {
+      font-size: 18px;
+      color: #666;
+    }
+
+    footer {
+      margin-top: 80px;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #888;
+    }
+
+    @media (max-width: 600px) {
+      nav {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>준주서의 홈페이지</h1>
+  </header>
+
+  <nav>
+    <a href="board/write.html">글 작성</a>
+    <a href="board/list.html">게시판</a>
+    <a href="member/signup.html">가입하기</a>
+    <a href="member/user-management.html">회원관리</a>
+  </nav>
+
+  <div class="main-content">
+    <h2>환영합니다!</h2>
+    <p>이곳은 간단한 게시판 사이트입니다.<br>
+       자유롭게 글을 작성하고 다른 사람들의 글을 읽어보세요.</p>
+  </div>
+
+  <footer>
+    ⓒ 2025 My Board. All rights reserved.
+  </footer>
+
+</body>
+</html>

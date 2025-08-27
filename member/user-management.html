@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>사용자 관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 14px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .actions button {
+      padding: 6px 10px;
+      margin: 0 2px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+      font-size: 13px;
+    }
+
+    .edit-btn { background-color: #28a745; }
+    .approve-btn { background-color: #17a2b8; }
+    .reject-btn { background-color: #dc3545; }
+
+    .nav {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .empty {
+      text-align: center;
+      margin-top: 20px;
+      color: #888;
+    }
+
+    .status-approved {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-pending {
+      color: #888;
+      font-weight: normal;
+    }
+
+    /* 모달 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .modal-content button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="nav">
+    <a href="signup.html">← 회원가입으로 돌아가기</a>
+  </div>
+
+  <h2>사용자 관리</h2>
+
+  <table id="userTable" style="display: none;">
+    <thead>
+      <tr>
+        <th>이름</th>
+        <th>나이</th>
+        <th>성별</th>
+        <th>아이디</th>
+        <th>전화번호</th>
+        <th>이메일</th>
+        <th>상태</th>
+        <th>관리</th>
+      </tr>
+    </thead>
+    <tbody id="userBody"></tbody>
+  </table>
+
+  <div class="empty" id="emptyMsg">등록된 사용자가 없습니다.</div>
+
+  <!-- 수정 모달 -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>사용자 정보 수정</h3>
+      <input type="text" id="editName" placeholder="이름" />
+      <input type="number" id="editAge" placeholder="나이" />
+      <input type="text" id="editGender" placeholder="성별" />
+      <input type="text" id="editUsername" placeholder="아이디" disabled />
+      <input type="tel" id="editPhone" placeholder="전화번호" />
+      <input type="email" id="editEmail" placeholder="이메일" />
+      <button onclick="saveChanges()">저장하기</button>
+    </div>
+  </div>
+
+  <script>
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    const table = document.getElementById('userTable');
+    const userBody = document.getElementById('userBody');
+    const emptyMsg = document.getElementById('emptyMsg');
+
+    const modal = document.getElementById('editModal');
+    let editIndex = null;
+
+    function renderUsers() {
+      userBody.innerHTML = "";
+
+      if (users.length === 0) {
+        table.style.display = 'none';
+        emptyMsg.style.display = 'block';
+        return;
+      }
+
+      table.style.display = 'table';
+      emptyMsg.style.display = 'none';
+
+      users.forEach((user, index) => {
+        const statusClass =
+          user.status === "승인됨"
+            ? "status-approved"
+            : "status-pending";
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.age}</td>
+          <td>${user.gender}</td>
+          <td>${user.username}</td>
+          <td>${user.phone}</td>
+          <td>${user.email}</td>
+          <td class="${statusClass}">${user.status || '대기중'}</td>
+          <td class="actions">
+            <button class="edit-btn" onclick="editUser(${index})">수정</button>
+            <button class="approve-btn" onclick="approveUser(${index})">승인</button>
+            <button class="reject-btn" onclick="rejectUser(${index})">거절</button>
+          </td>
+        `;
+        userBody.appendChild(row);
+      });
+    }
+
+    function approveUser(index) {
+      users[index].status = "승인됨";
+      localStorage.setItem('users', JSON.stringify(users));
+      renderUsers();
+    }
+
+    function rejectUser(index) {
+      if (confirm("이 사용자를 거절하시겠습니까? 데이터가 삭제됩니다.")) {
+        users.splice(index, 1);
+        localStorage.setItem('users', JSON.stringify(users));
+        renderUsers();
+      }
+    }
+
+    function editUser(index) {
+      const user = users[index];
+      editIndex = index;
+
+      document.getElementById('editName').value = user.name;
+      document.getElementById('editAge').value = user.age;
+      document.getElementById('editGender').value = user.gender;
+      document.getElementById('editUsername').value = user.username;
+      document.getElementById('editPhone').value = user.phone;
+      document.getElementById('editEmail').value = user.email;
+
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      modal.style.display = 'none';
+    }
+
+    function saveChanges() {
+      const updatedUser = {
+        name: document.getElementById('editName').value,
+        age: document.getElementById('editAge').value,
+        gender: document.getElementById('editGender').value,
+        username: document.getElementById('editUsername').value,
+        phone: document.getElementById('editPhone').value,
+        email: document.getElementById('editEmail').value,
+        status: users[editIndex].status || "대기중"
+      };
+
+      users[editIndex] = updatedUser;
+      localStorage.setItem('users', JSON.stringify(users));
+      closeModal();
+      renderUsers();
+    }
+
+    // 초기 렌더링
+    renderUsers();
+
+    // 모달 외부 클릭 시 닫기
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>
+
+

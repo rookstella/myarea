@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>글 목록</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .home-btn,
+    .write-btn {
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      transition: background-color 0.2s ease;
+    }
+
+    .home-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .home-btn:hover {
+      background-color: #5a6268;
+    }
+
+    .write-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .write-btn:hover {
+      background-color: #218838;
+    }
+
+    .post-card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .post-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #007bff;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .post-title:hover {
+      text-decoration: underline;
+    }
+
+    .post-content {
+      display: none;
+      color: #555;
+      white-space: pre-wrap;
+      margin-top: 10px;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: transparent;
+      color: #ff4d4f;
+      border: 1px solid #ff4d4f;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .delete-btn:hover {
+      background-color: #ff4d4f;
+      color: white;
+    }
+
+    .no-posts {
+      text-align: center;
+      color: #888;
+      font-size: 18px;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 600px) {
+      .top-bar {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📋 글 목록</h1>
+  </header>
+
+  <div class="container">
+    <div class="top-bar">
+      <a href="../main.html" class="home-btn">🏠 홈</a>
+      <a href="../board/write.html" class="write-btn">+ 새 글 작성</a>
+    </div>
+
+    <div id="posts"></div>
+  </div>
+
+  <script>
+    const postsDiv = document.getElementById('posts');
+
+    function loadPosts() {
+      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+
+      postsDiv.innerHTML = '';
+
+      if (posts.length === 0) {
+        postsDiv.innerHTML = '<div class="no-posts">작성된 글이 없습니다.</div>';
+        return;
+      }
+
+      posts.forEach(post => {
+        const postEl = document.createElement('div');
+        postEl.className = 'post-card';
+
+        postEl.innerHTML = `
+          <div class="post-title" onclick="toggleContent(this)">
+            ${escapeHtml(post.title)}
+          </div>
+          <div class="post-content">
+            ${escapeHtml(post.content)}
+          </div>
+          <button class="delete-btn" onclick="deletePost(${post.id})">삭제</button>
+        `;
+
+        postsDiv.appendChild(postEl);
+      });
+    }
+
+    function toggleContent(titleElement) {
+      const contentDiv = titleElement.nextElementSibling;
+      contentDiv.style.display = (contentDiv.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function deletePost(id) {
+      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+      const updated = posts.filter(post => post.id !== id);
+      localStorage.setItem('posts', JSON.stringify(updated));
+      loadPosts();
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    loadPosts();
+  </script>
+
+</body>
+</html>
+
+
+

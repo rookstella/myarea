@@ -1,0 +1,263 @@
+2025년 8월26일
+
+JS
+
+CSS
+
+html
+
+웹계발 --> 게임 ,앱
+
+프론트엔드
+html 뼈대
+css 외향
+js  동작 
+
+react<--현업 프론트엔드
+
+/
+백엔드-은행?
+데이터관리
+서버 고객의 요구사항
+sql
+
+프레임워크 많이씀--밀키트 같은거 보안기능이라든지
+/
+
+ head 부분에 CSS META
+
+h1 헤딩
+h2
+button
+테크 확인은 MDN 사이트
+
+box 안보여지는?
+-header, section. footer. article. nav. div
+aside. span. main. form
+
+item 사용자에게 보여지는
+-a, video, button. audio.input. map. label. canvas.img.table
+
+줄바꿈이냐 아니냐
+block -div   줄바꿈
+inline - b, span   줄 안바꿈
+
+테크 구조 엘레멘탈 컨텐츠 속성
+
+
+
+ol  순서가 정해진 리스트
+li   리스트
+ul 순서가 안정해진 리스트
+
+/아래 같이 거의씀
+input type( button, check, color, file, password,)
+label
+id
+/
+
+
+<CSS>
+cascading style sheet
+
+1.author style <---css
+2.user style
+3.browser
+
+1-->3번 순으로 기본 스타일로 내려감 1번이 우선함
+important 스타일다 무시하고 나쁜거 잘 안써야한다.
+
+
+선택자 selectors
+
+
+selector {
+property: value;
+}
+
+*{
+coor: green;                <=== 유니버설은 *으로쓰고
+
+}
+
+li {
+ color: blue;
+}
+
+
+id 설렉터
+
+
+class
+.red
+
+emet 코드 빠르게 하는법 타이핑
+
+<8월27일>
+
+github 올리자
+올리고 소스 공부하자
+
+
+초기화
+로그인 세팅
+하고나서 해야할듯
+
+깃허브에 폴더 하나만들고
+
+git clone https://github.com/rookstella/myarea.git    <-깃허브의 저장소를 내 로컬로 복제를 함 폴더만
+
+copy D:\myarea\*.* C:\Users\YourName\Documents\myarea\   <-새로 생성된 폴더안에 코드파일을 넣는거 난 안되서 복사해서 넣었음 마우스로
+
+git add .
+git commit -m "내 소스 코드 업로드"   <-- 깃에 커밋하고
+
+git push origin main
+
+<8월28>
+자바스크립트 기본 동영상 시청
+
+web
+프론트
+백엔드 다 쓰임
+
+변수
+함수
+조건문
+반복문
+
+
+1.변수 - 상자안에 값을 담는 개념
+
+var 변수명
+let  변수명 제약이 없는 let a=1
+const 변수명 바꿀수 없는 변수를 만들때
+
+2.함수
+input x function output
+
+function 이름(x) {
+
+return temp
+}
+
+입력 출력이 없을 수도 있다
+-->함수=마법=코드묶음
+
+function add(x,y){
+
+    let temp =x+y;
+    return temp
+}
+
+이런식을 함수를 정의해서 씀
+
+add= (x,y) => {
+let temp = x+y;
+return temp;
+}
+
+이렇게도 쓴다 같은말
+
+3조건문 택시가 만약 5000원이상이면 택시를 탄다
+
+순서도
+
+if(money>5000)
+ridetaxi();
+
+} else {
+
+walk();
+
+}else {
+walk();
+
+}
+
+console.log()
+
+
+
+반복문 나무를 열번 찍는다.
+
+for (let i=0; i<10; i++) {
+
+  console.log ("나무 찍기" +i);
+}
+
+아래와 같이 쓰기도 한다.
+myArray =[1,2,3,4,5]
+
+myArray.forEach(elmemint => {
+console.log ("나무 찍기 " + element);
+});
+
+자바스크립는
+
+널널한 문법 + 좀 특이함.
+
+
+
+
+자바스크립트에서는 문자 는 항상 
+"박희범" 따움표로 감싸줘야한다.
+
+let
+
+const 절대로 바뀌지 않는 상수를 입력할때
+
+
+alert 삭제되었습니다 알람
+prompt 창을 띄우고
+confirm 구독을 취소 하시겠습니까
+
+const name = prompt('이름을 입력하세요.", "2020-10-");  <--두개이 인수를 받을수 있다 prompt는
+alert("환영합니다, "+name + "님");
+
+null 아무내용도없다.
+
+confirm
+
+const isAdult=confirm("당신은 성인입니까?");
+console.log(isAdult)    컨펌은 확인 취소 창이 같이 뜬다.
+
+단점 스타일링x 디자이너들이 싫어함
+
+괄호안의 타입을 각가의 형으로 바꿔줌
+string() -->문자형으로 변환
+Number() -->숫자형으로 변환
+Boolean() -->불린형으로 변환
+
+Boolean형
+0
+""
+undfined
+n=NN
+
+다 false 가됨
+
+Num df(null) //0
+Num df(uncdvindc) //NaN
+
+Number(0) //false
+Number('0') // true
+
+Number('') // false
+Numver(' ') //true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

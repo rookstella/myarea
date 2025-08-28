@@ -1,0 +1,101 @@
+2025년 8월26일
+
+JS
+
+CSS
+
+html
+
+웹계발 --> 게임 ,앱
+
+프론트엔드
+html 뼈대
+css 외향
+js  동작 
+
+react<--현업 프론트엔드
+
+/
+백엔드-은행?
+데이터관리
+서버 고객의 요구사항
+sql
+
+프레임워크 많이씀--밀키트 같은거 보안기능이라든지
+/
+
+ head 부분에 CSS META
+
+h1 헤딩
+h2
+button
+테크 확인은 MDN 사이트
+
+box 안보여지는?
+-header, section. footer. article. nav. div
+aside. span. main. form
+
+item 사용자에게 보여지는
+-a, video, button. audio.input. map. label. canvas.img.table
+
+줄바꿈이냐 아니냐
+block -div   줄바꿈
+inline - b, span   줄 안바꿈
+
+테크 구조 엘레멘탈 컨텐츠 속성
+
+
+
+ol  순서가 정해진 리스트
+li   리스트
+ul 순서가 안정해진 리스트
+
+/아래 같이 거의씀
+input type( button, check, color, file, password,)
+label
+id
+/
+
+
+<CSS>
+cascading style sheet
+
+1.author style <---css
+2.user style
+3.browser
+
+1-->3번 순으로 기본 스타일로 내려감 1번이 우선함
+important 스타일다 무시하고 나쁜거 잘 안써야한다.
+
+
+선택자 selectors
+
+
+selector {
+property: value;
+}
+
+*{
+coor: green;                <=== 유니버설은 *으로쓰고
+
+}
+
+li {
+ color: blue;
+}
+
+
+id 설렉터
+
+
+class
+.red
+
+emet 코드 빠르게 하는법 타이핑
+
+
+
+
+
+
+

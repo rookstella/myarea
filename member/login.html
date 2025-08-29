@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인 페이지</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-container {
+      background-color: #fff;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>로그인</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="아이디" required>
+      <input type="password" id="password" placeholder="비밀번호" required>
+      <button type="submit">로그인</button>
+      <p id="errorMessage" class="error"></p>
+    </form>
+    <a href="signup.html">가입하기</a>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const errorMessage = document.getElementById("errorMessage");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+
+      const user = users.find(u => u.username === username && u.password === password);
+
+      if (user) {
+        sessionStorage.setItem('loggedInUser', username);
+        location.href = "../main.html"; // 관리 페이지로 이동
+      } else {
+        errorMessage.textContent = "아이디 또는 비밀번호가 올바르지 않습니다.";
+      }
+    });
+  </script>
+</body>
+</html>
+

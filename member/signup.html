@@ -103,6 +103,11 @@
       <label for="password">비밀번호</label>
       <input type="password" id="password" name="password" required />
 
+      <label for="confirmPassword">비밀번호 확인</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required />
+
+
+
       <label for="phone">전화번호</label>
       <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" required />
 
@@ -122,6 +127,13 @@
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
+     const password = form.password.value;
+     const confirmPassword = form.confirmPassword.value;
+
+     if (password !== confirmPassword) {
+       alert('비밀번호가 일치하지 않습니다.');
+       return;
+    }
 
     const data = {
       name: form.name.value.trim(),
@@ -139,6 +151,7 @@
 
     alert('회원가입이 완료되었습니다! 관리자 승인을 기다리세요');
     window.location.href = 'user-management.html';
+    
   });
 </script>
 

@@ -1,147 +1,93 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>회원가입</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="form-container">
+  <h2>회원가입</h2>
+  <form id="signupForm">
+    <label for="name">이름</label>
+    <input type="text" id="name" name="name" required />
 
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f2f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
+    <label for="age">나이</label>
+    <input type="number" id="age" name="age" min="1" required />
 
-    .form-container {
-      background-color: #fff;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 500px;
-    }
+    <label for="gender">성별</label>
+    <select id="gender" name="gender" required>
+      <option value="">선택하세요</option>
+      <option value="남자">남자</option>
+      <option value="여자">여자</option>
+      <option value="기타">기타</option>
+    </select>
 
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #333;
-    }
+    <label for="username">아이디</label>
+    <input type="text" id="username" name="username" required />
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-      color: #555;
-    }
+    <label for="password">비밀번호</label>
+    <input type="password" id="password" name="password" required />
 
-    input,
-    select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-      box-sizing: border-box;
-    }
+    <label for="confirmPassword">비밀번호 확인</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" required />
 
-    button {
-      width: 100%;
-      background-color: #007bff;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
+    <label for="phone">전화번호</label>
+    <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" required />
 
-    button:hover {
-      background-color: #0056b3;
-    }
+    <label for="email">이메일</label>
+    <input type="email" id="email" name="email" required />
 
-    .success {
-      text-align: center;
-      color: green;
-      margin-top: 15px;
-    }
+    <button type="submit">가입하기</button>
 
-    @media (max-width: 600px) {
-      .form-container {
-        padding: 25px 20px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="form-container">
-    <h2>회원가입</h2>
-    <form id="signupForm">
-      <label for="name">이름</label>
-      <input type="text" id="name" name="name" required />
-
-      <label for="age">나이</label>
-      <input type="number" id="age" name="age" min="1" required />
-
-      <label for="gender">성별</label>
-      <select id="gender" name="gender" required>
-        <option value="">선택하세요</option>
-        <option value="남자">남자</option>
-        <option value="여자">여자</option>
-        <option value="기타">기타</option>
-      </select>
-
-      <label for="username">아이디</label>
-      <input type="text" id="username" name="username" required />
-
-      <label for="password">비밀번호</label>
-      <input type="password" id="password" name="password" required />
-
-      <label for="phone">전화번호</label>
-      <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" required />
-
-      <label for="email">이메일</label>
-      <input type="email" id="email" name="email" required />
-
-      <button type="submit">가입하기</button>
-
-      <div class="success" id="successMsg" style="display: none;">
-        🎉 회원가입이 완료되었습니다!
-      </div>
-    </form>
-  </div>
+    <div class="success" id="successMsg" style="display: none; color: green; text-align: center; margin-top: 15px;">
+      🎉 회원가입이 완료되었습니다! 관리자 승인을 기다리세요.
+    </div>
+  </form>
+</div>
 
 <script>
-  const form = document.getElementById('signupForm');
+  const signupForm = document.getElementById('signupForm');
+  const successMsg = document.getElementById('successMsg');
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
+ signupForm.addEventListener('submit', function(e) {
+  e.preventDefault();
 
-    const data = {
-      name: form.name.value.trim(),
-      age: form.age.value,
-      gender: form.gender.value,
-      username: form.username.value.trim(),
-      password: form.password.value,
-      phone: form.phone.value.trim(),
-      email: form.email.value.trim()
-    };
+  const password = signupForm.password.value;
+  const confirmPassword = signupForm.confirmPassword.value;
 
-    const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-    existingUsers.push(data);
-    localStorage.setItem('users', JSON.stringify(existingUsers));
+  if (password !== confirmPassword) {
+    alert('비밀번호가 일치하지 않습니다.');
+    return;
+  }
 
-    alert('회원가입이 완료되었습니다! 관리자 승인을 기다리세요');
-    window.location.href = 'user-management.html';
-  });
+  const newUser = {
+    name: signupForm.name.value.trim(),
+    age: signupForm.age.value.trim(),
+    gender: signupForm.gender.value,
+    username: signupForm.username.value.trim(),
+    password: password,
+    phone: signupForm.phone.value.trim(),
+    email: signupForm.email.value.trim(),
+    approved: false // 승인 대기 상태
+  };
+
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+
+  if (users.some(u => u.username === newUser.username)) {
+    alert('이미 존재하는 아이디입니다.');
+    return;
+  }
+
+  users.push(newUser);
+  localStorage.setItem('users', JSON.stringify(users));
+
+  successMsg.style.display = 'block';
+
+  setTimeout(() => {
+    if (window.loadPage) {
+      loadPage('member/login.html');
+    } else {
+      location.href = 'login.html';
+    }
+  }, 1500);
+});
+
 </script>
 
-</body>
-</html>
+
+
+
 

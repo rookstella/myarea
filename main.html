@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>준주서의 육아일기</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       margin: 0;
@@ -12,55 +11,41 @@
       background-color: #f0f2f5;
       color: #333;
     }
-
     header {
       background-color: #007bff;
       color: white;
       padding: 20px 0;
       text-align: center;
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
     nav {
       background-color: #fff;
       display: flex;
       justify-content: center;
       gap: 30px;
       padding: 15px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
-
     nav a {
       text-decoration: none;
       color: #007bff;
       font-weight: bold;
       font-size: 16px;
       transition: color 0.2s ease;
+      cursor: pointer;
     }
-
     nav a:hover {
       color: #0056b3;
     }
-
     .main-content {
       padding: 50px 20px;
       text-align: center;
+      min-height: 400px;
+      background: white;
+      max-width: 700px;
+      margin: 20px auto;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
-
-    .main-content h2 {
-      font-size: 26px;
-      margin-bottom: 15px;
-    }
-
-    .main-content p {
-      font-size: 18px;
-      color: #666;
-    }
-
     footer {
       margin-top: 80px;
       text-align: center;
@@ -68,12 +53,23 @@
       font-size: 14px;
       color: #888;
     }
-
     @media (max-width: 600px) {
       nav {
         flex-direction: column;
         gap: 10px;
       }
+    }
+    .logout-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -84,13 +80,15 @@
   </header>
 
   <nav>
-    <a href="board/write.html">글 작성</a>
-    <a href="board/list.html">게시판</a>
-    <a href="member/signup.html">가입하기</a>
-    <a href="member/user-management.html">회원관리</a>
+    <a href="#" data-page="board/write.html">글 작성</a>
+    <a href="#" data-page="board/list.html">게시판</a>
+    <a href="#" data-page="member/user-management.html">회원관리</a>
+    <a href="#" data-page="member/login.html">로그인</a>
   </nav>
 
-  <div class="main-content">
+  <button id="logoutBtn" class="logout-btn" style="display:none;">로그아웃</button>
+
+  <div id="main-content" class="main-content">
     <h2>환영합니다!</h2>
     <p>이곳은 간단한 게시판 사이트입니다.<br>
        자유롭게 글을 작성하고 다른 사람들의 글을 읽어보세요.</p>
@@ -100,5 +98,101 @@
     ⓒ 2025 My Board. All rights reserved.
   </footer>
 
+  <script>
+    // SPA 페이지 로딩 함수
+    function loadPage(url) {
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error('페이지를 불러오는데 실패했습니다.');
+          return res.text();
+        })
+        .then(data => {
+          const contentArea = document.getElementById('main-content');
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = data;
+
+          // 스크립트 제거 후 내용만 넣기
+          const scripts = tempDiv.querySelectorAll('script');
+          scripts.forEach(s => s.remove());
+          contentArea.innerHTML = tempDiv.innerHTML;
+
+          // 스크립트 태그만 따로 실행
+          scripts.forEach(script => {
+            const newScript = document.createElement('script');
+            if (script.src) {
+              newScript.src = script.src;
+              newScript.onload = () => console.log(`Loaded script: ${script.src}`);
+              document.body.appendChild(newScript);
+            } else {
+              newScript.textContent = script.textContent;
+              document.body.appendChild(newScript);
+            }
+          });
+        })
+        .catch(err => {
+          const contentArea = document.getElementById('main-content');
+          contentArea.innerHTML = `<p style="color:red;">페이지를 불러올 수 없습니다.</p>`;
+          console.error(err);
+        });
+    }
+
+    // 로그인 상태 확인 및 로그아웃 버튼 토글
+function updateLoginStatus() {
+  const logoutBtn = document.getElementById('logoutBtn');
+  const loggedInUser = sessionStorage.getItem('loggedInUser');
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  const currentUser = users.find(u => u.username === loggedInUser);
+
+  document.querySelectorAll('nav a').forEach(a => {
+    if (a.textContent === '로그인') {
+      a.style.display = loggedInUser ? 'none' : 'inline-block';
+    }
+
+    if (a.textContent === '회원관리') {
+      // 관리자만 회원관리 메뉴 보이게
+      a.style.display = currentUser?.isAdmin ? 'inline-block' : 'none';
+    }
+  });
+
+  logoutBtn.style.display = loggedInUser ? 'block' : 'none';
+}
+
+    // 로그아웃 버튼 클릭 시
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      sessionStorage.removeItem('loggedInUser');
+      updateLoginStatus();
+      alert('로그아웃 되었습니다.');
+      loadPage('member/login.html');
+    });
+
+    // 내비게이션 링크 클릭 이벤트
+    document.querySelectorAll('nav a').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const pageUrl = e.currentTarget.getAttribute('data-page');
+        if (pageUrl) loadPage(pageUrl);
+      });
+    });
+
+    // 초기 로그인 상태 표시 및 기본 페이지 로딩
+    updateLoginStatus();
+    // 기본 페이지를 로그인 상태에 따라 다르게 띄울 수도 있음
+    loadPage('member/login.html'); // 기본적으로 로그인 페이지 띄움
+
+    // 모든 a태그 클릭 감지 (내비게이션, 동적 콘텐츠 모두 포함)
+document.body.addEventListener('click', e => {
+  const target = e.target;
+  if (target.tagName === 'A' && target.hasAttribute('data-page')) {
+    e.preventDefault();
+    loadPage(target.getAttribute('data-page'));
+  }
+});
+
+
+  </script>
+
 </body>
 </html>
+
+
+

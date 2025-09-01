@@ -1,0 +1,56 @@
+<div class="login-container">
+  <h2>로그인</h2>
+  <form id="loginForm">
+    <input type="text" id="username" placeholder="아이디" required />
+    <input type="password" id="password" placeholder="비밀번호" required />
+    <button type="submit">로그인</button>
+    <p id="errorMessage" class="error" style="color:red;"></p>
+  </form>
+  <a href="#" data-page="member/signup.html">가입하기</a>
+</div>
+
+<script>
+  const loginForm = document.getElementById("loginForm");
+  const errorMessage = document.getElementById("errorMessage");
+
+  loginForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+
+    // 승인된 사용자만 로그인 가능
+    const user = users.find(u => u.username === username && u.password === password && u.approved === true);
+
+    if (user) {
+      sessionStorage.setItem('loggedInUser', username);
+
+      // ✅ 로그인 상태 반영 (메뉴 갱신: 회원관리 보이고, 로그인 숨기기 등)
+      if (typeof updateLoginStatus === 'function') {
+        updateLoginStatus();
+      }
+
+      alert(`${username}님, 환영합니다!`);
+
+      // ✅ 로그인 성공 후 게시판으로 이동
+      if (typeof loadPage === 'function') {
+        loadPage('board/list.html');
+      } else {
+        location.href = '../board/list.html'; // fallback
+      }
+
+    } else {
+      errorMessage.textContent = "아이디 또는 비밀번호가 올바르지 않거나 승인되지 않은 회원입니다.";
+    }
+  });
+
+  
+</script>
+
+
+
+
+
+
+

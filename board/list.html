@@ -1,205 +1,110 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>글 목록</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="container" style="max-width:800px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); font-family:'Segoe UI', sans-serif;">
+  <h1 style="text-align:center; color:#333; margin-bottom:25px;">📋 게시판 목록</h1>
+  
+  <div id="postList"></div>
 
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f5f7fa;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background-color: #007bff;
-      color: white;
-      padding: 20px 0;
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .home-btn,
-    .write-btn {
-      text-decoration: none;
-      padding: 10px 15px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 16px;
-      transition: background-color 0.2s ease;
-    }
-
-    .home-btn {
-      background-color: #6c757d;
-      color: white;
-    }
-
-    .home-btn:hover {
-      background-color: #5a6268;
-    }
-
-    .write-btn {
-      background-color: #28a745;
-      color: white;
-    }
-
-    .write-btn:hover {
-      background-color: #218838;
-    }
-
-    .post-card {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
-      position: relative;
-    }
-
-    .post-title {
-      font-size: 20px;
-      font-weight: bold;
-      color: #007bff;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
-
-    .post-title:hover {
-      text-decoration: underline;
-    }
-
-    .post-content {
-      display: none;
-      color: #555;
-      white-space: pre-wrap;
-      margin-top: 10px;
-    }
-
-    .delete-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background-color: transparent;
-      color: #ff4d4f;
-      border: 1px solid #ff4d4f;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    .delete-btn:hover {
-      background-color: #ff4d4f;
-      color: white;
-    }
-
-    .no-posts {
-      text-align: center;
-      color: #888;
-      font-size: 18px;
-      margin-top: 50px;
-    }
-
-    @media (max-width: 600px) {
-      .top-bar {
-        flex-direction: column;
-        gap: 10px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <header>
-    <h1>📋 글 목록</h1>
-  </header>
-
-  <div class="container">
-    <div class="top-bar">
-      <a href="../main.html" class="home-btn">🏠 홈</a>
-      <a href="../board/write.html" class="write-btn">+ 새 글 작성</a>
-    </div>
-
-    <div id="posts"></div>
+  <div style="text-align:center; margin-top:30px;">
+    <a href="#" id="goToWrite" style="padding:12px 20px; background:#007bff; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">✍️ 글 작성하기</a>
   </div>
+</div>
 
-  <script>
-    const postsDiv = document.getElementById('posts');
+<script>
+  function formatDate(isoString) {
+    const date = new Date(isoString);
+    return date.toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 
-    function loadPosts() {
-      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  function loadPosts() {
+    const postList = document.getElementById('postList');
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
 
-      postsDiv.innerHTML = '';
+    if (posts.length === 0) {
+      postList.innerHTML = '<p style="text-align:center; color:#777;">작성된 글이 없습니다.</p>';
+      return;
+    }
 
-      if (posts.length === 0) {
-        postsDiv.innerHTML = '<div class="no-posts">작성된 글이 없습니다.</div>';
-        return;
-      }
+    postList.innerHTML = '';
 
-      posts.forEach(post => {
-        const postEl = document.createElement('div');
-        postEl.className = 'post-card';
+    posts.forEach(post => {
+      const wrapper = document.createElement('div');
+      wrapper.style.borderBottom = '1px solid #eee';
+      wrapper.style.padding = '20px 0';
 
-        postEl.innerHTML = `
-          <div class="post-title" onclick="toggleContent(this)">
-            ${escapeHtml(post.title)}
-          </div>
-          <div class="post-content">
-            ${escapeHtml(post.content)}
-          </div>
-          <button class="delete-btn" onclick="deletePost(${post.id})">삭제</button>
-        `;
+      wrapper.innerHTML = `
+        <h3 class="post-title" style="margin:0; color:#007bff; cursor:pointer;" data-id="${post.id}">
+          ${post.title}
+        </h3>
+        <p style="margin:5px 0 10px; color:#555; font-size:14px;">
+          작성일: ${post.createdAt ? formatDate(post.createdAt) : '알 수 없음'}
+        </p>
+        <div class="post-content" style="display:none; margin-bottom:10px; color:#444; line-height:1.6;">
+          ${post.content.replace(/\n/g, '<br/>')}
+        </div>
+        <div class="post-actions" style="display:none; margin-bottom:10px;">
+          <button class="edit-btn" data-id="${post.id}" style="margin-right:10px; padding:6px 12px; background:#ffc107; color:#333; border:none; border-radius:4px; cursor:pointer;">수정</button>
+          <button class="delete-btn" data-id="${post.id}" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">삭제</button>
+        </div>
+      `;
 
-        postsDiv.appendChild(postEl);
+      postList.appendChild(wrapper);
+    });
+
+    // 제목 클릭 → 내용 토글
+    document.querySelectorAll('.post-title').forEach(title => {
+      title.addEventListener('click', () => {
+        const content = title.parentElement.querySelector('.post-content');
+        const actions = title.parentElement.querySelector('.post-actions');
+        const isVisible = content.style.display === 'block';
+        content.style.display = isVisible ? 'none' : 'block';
+        actions.style.display = isVisible ? 'none' : 'block';
       });
-    }
+    });
 
-    function toggleContent(titleElement) {
-      const contentDiv = titleElement.nextElementSibling;
-      contentDiv.style.display = (contentDiv.style.display === 'block') ? 'none' : 'block';
-    }
+    // 삭제 버튼
+    document.querySelectorAll('.delete-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const id = parseInt(button.getAttribute('data-id'));
+        let posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        posts = posts.filter(p => p.id !== id);
+        localStorage.setItem('posts', JSON.stringify(posts));
+        alert('글이 삭제되었습니다.');
+        loadPosts(); // 목록 다시 로드
+      });
+    });
 
-    function deletePost(id) {
-      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-      const updated = posts.filter(post => post.id !== id);
-      localStorage.setItem('posts', JSON.stringify(updated));
-      loadPosts();
-    }
+    // 수정 버튼
+    document.querySelectorAll('.edit-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const id = parseInt(button.getAttribute('data-id'));
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        const post = posts.find(p => p.id === id);
+        if (!post) return;
 
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
+        // 수정할 글을 세션스토리지에 임시 저장
+        sessionStorage.setItem('editPost', JSON.stringify(post));
 
-    loadPosts();
-  </script>
+        // 글쓰기 페이지로 이동
+        loadPage('board/write.html');
+      });
+    });
+  }
 
-</body>
-</html>
+  document.getElementById('goToWrite').addEventListener('click', e => {
+    e.preventDefault();
+    sessionStorage.removeItem('editPost'); // 새 글 작성을 위한 초기화
+    loadPage('board/write.html');
+  });
+
+  loadPosts(); // 초기 실행
+</script>
+
+
 
 
 

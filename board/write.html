@@ -1,48 +1,100 @@
+<div class="container" style="max-width:600px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); font-family:'Segoe UI', sans-serif;">
+  <h2 style="text-align:center; margin-bottom:20px;">✍️ 글 작성하기</h2>
 
-
-<div class="container" style="max-width:600px; margin: auto; background:#fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-family: 'Segoe UI', sans-serif;">
-  <h1 style="text-align:center; color:#333; margin-bottom: 25px;">✍️ 글 작성</h1>
   <form id="postForm">
-    <label for="title" style="display:block; margin-bottom:8px; color:#555; font-weight:bold;">제목</label>
-    <input type="text" id="title" placeholder="제목을 입력하세요" required style="width: 100%; padding: 12px; border:1px solid #ccc; border-radius:8px; margin-bottom:20px; font-size:16px; box-sizing:border-box;"/>
-    <label for="content" style="display:block; margin-bottom:8px; color:#555; font-weight:bold;">내용</label>
-    <textarea id="content" rows="6" placeholder="내용을 입력하세요" required style="width: 100%; padding: 12px; border:1px solid #ccc; border-radius:8px; margin-bottom:20px; font-size:16px; box-sizing:border-box;"></textarea>
-    <button type="submit" style="width:100%; padding:14px; background:#007bff; color:white; border:none; border-radius:8px; font-size:16px; cursor:pointer; transition: background-color 0.2s ease;">작성 완료</button>
+    <label for="title" style="display:block; margin-bottom:6px; font-weight:bold;">제목</label>
+    <input type="text" id="title" name="title" required style="width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px;">
+
+    <label for="content" style="display:block; margin-bottom:6px; font-weight:bold;">내용</label>
+    <textarea id="content" name="content" rows="10" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;"></textarea>
+
+    <div style="text-align:center; margin-top:20px;">
+      <button type="submit" style="padding:10px 25px; background:#007bff; color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">저장</button>
+      <button type="button" id="cancelBtn" style="padding:10px 25px; margin-left:10px; background:#6c757d; color:#fff; border:none; border-radius:8px; cursor:pointer;">취소</button>
+    </div>
   </form>
-  <div class="link" style="text-align:center; margin-top:20px;">
-    <a href="#" id="backToList" style="text-decoration:none; color:#007bff; font-weight:bold;">📋 목록으로 돌아가기</a>
-  </div>
 </div>
 
 <script>
+  const loggedInUser = sessionStorage.getItem('loggedInUser');
+  if (!loggedInUser) {
+    alert('로그인 후 이용 가능합니다.');
+    if (typeof loadPage === 'function') loadPage('member/login.html');
+    else location.href = 'member/login.html';
+  }
 
-  const form = document.getElementById('postForm');
+  const postForm = document.getElementById('postForm');
+  const editPost = JSON.parse(sessionStorage.getItem('editPost') || 'null');
 
-  form.addEventListener('submit', e => {
+  // 글 수정 모드면 데이터 채우기
+  if (editPost) {
+    postForm.title.value = editPost.title;
+    postForm.content.value = editPost.content;
+  }
+
+  postForm.addEventListener('submit', e => {
     e.preventDefault();
 
-    const title = document.getElementById('title').value.trim();
-    const content = document.getElementById('content').value.trim();
+    const title = postForm.title.value.trim();
+    const content = postForm.content.value.trim();
 
     if (!title || !content) {
-      alert('제목과 내용을 모두 입력해주세요.');
+      alert('제목과 내용을 모두 입력하세요.');
       return;
     }
 
-    const post = { id: Date.now(), title, content };
-    const existing = JSON.parse(localStorage.getItem('posts') || '[]');
-    existing.unshift(post);
-    localStorage.setItem('posts', JSON.stringify(existing));
+    let posts = JSON.parse(localStorage.getItem('posts') || '[]');
 
-    alert('글이 작성되었습니다!');
-    loadPage('board/list.html'); // SPA 방식으로 목록 불러오기
+    if (editPost) {
+      // 수정
+      posts = posts.map(p => {
+        if (p.id === editPost.id) {
+          return {
+            ...p,
+            title,
+            content,
+            updatedAt: new Date().toISOString()
+          };
+        }
+        return p;
+      });
+      alert('글이 수정되었습니다.');
+    } else {
+      // 새 글 작성
+      const newPost = {
+        id: Date.now(),
+        author: loggedInUser,
+        title,
+        content,
+        createdAt: new Date().toISOString(),
+        updatedAt: null
+      };
+      posts.push(newPost);
+      alert('글이 작성되었습니다.');
+    }
+
+    localStorage.setItem('posts', JSON.stringify(posts));
+    sessionStorage.removeItem('editPost');
+
+    if (typeof loadPage === 'function') {
+      loadPage('board/list.html');
+    } else {
+      location.href = 'list.html';
+    }
   });
 
-  document.getElementById('backToList').addEventListener('click', e => {
-    e.preventDefault();
-    loadPage('board/list.html');
+  document.getElementById('cancelBtn').addEventListener('click', () => {
+    sessionStorage.removeItem('editPost');
+    if (typeof loadPage === 'function') {
+      loadPage('board/list.html');
+    } else {
+      location.href = 'list.html';
+    }
   });
 </script>
+
+
+
 
 
 

@@ -16,6 +16,23 @@
       color: white;
       padding: 20px 0;
       text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+    header h1 {
+      margin: 0;
+    }
+    #homeBtn {
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
     }
     nav {
       background-color: #fff;
@@ -77,10 +94,10 @@
 
   <header>
     <h1>준주서의 홈페이지</h1>
+    <button id="homeBtn">홈</button>
   </header>
 
   <nav>
-    <a href="#" data-page="board/write.html">글 작성</a>
     <a href="#" data-page="board/list.html">게시판</a>
     <a href="#" data-page="member/user-management.html">회원관리</a>
     <a href="#" data-page="member/login.html">로그인</a>
@@ -101,61 +118,72 @@
   <script>
     // SPA 페이지 로딩 함수
     function loadPage(url) {
-      fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error('페이지를 불러오는데 실패했습니다.');
-          return res.text();
-        })
-        .then(data => {
-          const contentArea = document.getElementById('main-content');
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = data;
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error('페이지를 불러오는데 실패했습니다.');
+      return res.text();
+    })
+    .then(data => {
+      const contentArea = document.getElementById('main-content');
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = data;
 
-          // 스크립트 제거 후 내용만 넣기
-          const scripts = tempDiv.querySelectorAll('script');
-          scripts.forEach(s => s.remove());
-          contentArea.innerHTML = tempDiv.innerHTML;
+      // <script> 태그 추출
+      const scripts = tempDiv.querySelectorAll('script');
+      scripts.forEach(script => script.remove()); // 본문에선 제거
 
-          // 스크립트 태그만 따로 실행
-          scripts.forEach(script => {
+      // 본문만 렌더링
+      contentArea.innerHTML = tempDiv.innerHTML;
+
+      // 스크립트 실행
+      scripts.forEach(script => {
+        if (script.src) {
+          // 이미 로드된 src 스크립트는 중복 로드 방지
+          const alreadyLoaded = document.querySelector(`script[src="${script.src}"]`);
+          if (!alreadyLoaded) {
             const newScript = document.createElement('script');
-            if (script.src) {
-              newScript.src = script.src;
-              newScript.onload = () => console.log(`Loaded script: ${script.src}`);
-              document.body.appendChild(newScript);
-            } else {
-              newScript.textContent = script.textContent;
-              document.body.appendChild(newScript);
-            }
-          });
-        })
-        .catch(err => {
-          const contentArea = document.getElementById('main-content');
-          contentArea.innerHTML = `<p style="color:red;">페이지를 불러올 수 없습니다.</p>`;
-          console.error(err);
-        });
-    }
+            newScript.src = script.src;
+            newScript.async = false;
+            document.body.appendChild(newScript);
+          }
+        } else {
+          // inline 스크립트는 Function으로 안전 실행
+          try {
+            new Function(script.textContent)();
+          } catch (err) {
+            console.warn('스크립트 실행 중 오류 발생:', err.message);
+          }
+        }
+      });
+    })
+    .catch(err => {
+      const contentArea = document.getElementById('main-content');
+      contentArea.innerHTML = `<p style="color:red;">페이지를 불러올 수 없습니다.</p>`;
+      console.error(err);
+    });
+}
+
 
     // 로그인 상태 확인 및 로그아웃 버튼 토글
-function updateLoginStatus() {
-  const logoutBtn = document.getElementById('logoutBtn');
-  const loggedInUser = sessionStorage.getItem('loggedInUser');
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-  const currentUser = users.find(u => u.username === loggedInUser);
+    function updateLoginStatus() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      const loggedInUser = sessionStorage.getItem('loggedInUser');
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const currentUser = users.find(u => u.username === loggedInUser);
 
-  document.querySelectorAll('nav a').forEach(a => {
-    if (a.textContent === '로그인') {
-      a.style.display = loggedInUser ? 'none' : 'inline-block';
+      document.querySelectorAll('nav a').forEach(a => {
+        if (a.textContent === '로그인') {
+          a.style.display = loggedInUser ? 'none' : 'inline-block';
+        }
+
+        if (a.textContent === '회원관리') {
+          // 관리자만 회원관리 메뉴 보이게
+          a.style.display = currentUser?.isAdmin ? 'inline-block' : 'none';
+        }
+      });
+
+      logoutBtn.style.display = loggedInUser ? 'block' : 'none';
     }
-
-    if (a.textContent === '회원관리') {
-      // 관리자만 회원관리 메뉴 보이게
-      a.style.display = currentUser?.isAdmin ? 'inline-block' : 'none';
-    }
-  });
-
-  logoutBtn.style.display = loggedInUser ? 'block' : 'none';
-}
 
     // 로그아웃 버튼 클릭 시
     document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -174,25 +202,34 @@ function updateLoginStatus() {
       });
     });
 
+    // 홈 버튼 클릭 이벤트 (기본 환영 화면)
+    document.getElementById('homeBtn').addEventListener('click', () => {
+      const contentArea = document.getElementById('main-content');
+      contentArea.innerHTML = `
+        <h2>환영합니다!</h2>
+        <p>이곳은 간단한 게시판 사이트입니다.<br>
+           자유롭게 글을 작성하고 다른 사람들의 글을 읽어보세요.</p>
+      `;
+    });
+
     // 초기 로그인 상태 표시 및 기본 페이지 로딩
     updateLoginStatus();
-    // 기본 페이지를 로그인 상태에 따라 다르게 띄울 수도 있음
     loadPage('member/login.html'); // 기본적으로 로그인 페이지 띄움
 
     // 모든 a태그 클릭 감지 (내비게이션, 동적 콘텐츠 모두 포함)
-document.body.addEventListener('click', e => {
-  const target = e.target;
-  if (target.tagName === 'A' && target.hasAttribute('data-page')) {
-    e.preventDefault();
-    loadPage(target.getAttribute('data-page'));
-  }
-});
-
+    document.body.addEventListener('click', e => {
+      const target = e.target;
+      if (target.tagName === 'A' && target.hasAttribute('data-page')) {
+        e.preventDefault();
+        loadPage(target.getAttribute('data-page'));
+      }
+    });
 
   </script>
 
 </body>
 </html>
+
 
 
 

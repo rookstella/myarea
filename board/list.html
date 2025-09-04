@@ -1,22 +1,21 @@
 <div class="container" style="max-width:800px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); font-family:'Segoe UI', sans-serif;">
   <h1 style="text-align:center; color:#333; margin-bottom:25px;">📋 게시판 목록</h1>
-  
   <div id="postList"></div>
 
+  <!-- 글쓰기 버튼 -->
   <div style="text-align:center; margin-top:30px;">
-    <a href="#" id="goToWrite" style="padding:12px 20px; background:#007bff; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">✍️ 글 작성하기</a>
+    <button id="goToWrite" style="padding:12px 20px; background:#007bff; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">✍️ 글 작성하기</button>
   </div>
 </div>
 
 <script>
+  const loggedInUser = sessionStorage.getItem('loggedInUser');
+
   function formatDate(isoString) {
     const date = new Date(isoString);
     return date.toLocaleString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit'
     });
   }
 
@@ -26,6 +25,7 @@
 
     if (posts.length === 0) {
       postList.innerHTML = '<p style="text-align:center; color:#777;">작성된 글이 없습니다.</p>';
+      attachWriteBtnListener();
       return;
     }
 
@@ -40,22 +40,24 @@
         <h3 class="post-title" style="margin:0; color:#007bff; cursor:pointer;" data-id="${post.id}">
           ${post.title}
         </h3>
-        <p style="margin:5px 0 10px; color:#555; font-size:14px;">
-          작성일: ${post.createdAt ? formatDate(post.createdAt) : '알 수 없음'}
+        <p style="margin:5px 0 5px; color:#555; font-size:14px;">
+          작성자: <strong>${post.author}</strong> | 작성일: ${post.createdAt ? formatDate(post.createdAt) : '알 수 없음'} ${post.updatedAt ? `(수정됨: ${formatDate(post.updatedAt)})` : ''}
         </p>
-        <div class="post-content" style="display:none; margin-bottom:10px; color:#444; line-height:1.6;">
-          ${post.content.replace(/\n/g, '<br/>')}
+        <div class="post-content" style="display:none; margin-bottom:10px; color:#444; line-height:1.6; white-space: pre-wrap;">
+          ${post.content}
         </div>
         <div class="post-actions" style="display:none; margin-bottom:10px;">
-          <button class="edit-btn" data-id="${post.id}" style="margin-right:10px; padding:6px 12px; background:#ffc107; color:#333; border:none; border-radius:4px; cursor:pointer;">수정</button>
-          <button class="delete-btn" data-id="${post.id}" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">삭제</button>
+          ${loggedInUser === post.author ? `
+            <button class="edit-btn" data-id="${post.id}" style="margin-right:10px; padding:6px 12px; background:#ffc107; color:#333; border:none; border-radius:4px; cursor:pointer;">수정</button>
+            <button class="delete-btn" data-id="${post.id}" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">삭제</button>
+          ` : ''}
         </div>
       `;
 
       postList.appendChild(wrapper);
     });
 
-    // 제목 클릭 → 내용 토글
+    // 제목 클릭 시 내용 토글
     document.querySelectorAll('.post-title').forEach(title => {
       title.addEventListener('click', () => {
         const content = title.parentElement.querySelector('.post-content');
@@ -66,43 +68,71 @@
       });
     });
 
-    // 삭제 버튼
+    // 삭제
     document.querySelectorAll('.delete-btn').forEach(button => {
       button.addEventListener('click', () => {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
         const id = parseInt(button.getAttribute('data-id'));
         let posts = JSON.parse(localStorage.getItem('posts') || '[]');
         posts = posts.filter(p => p.id !== id);
         localStorage.setItem('posts', JSON.stringify(posts));
         alert('글이 삭제되었습니다.');
-        loadPosts(); // 목록 다시 로드
+        loadPosts();
       });
     });
 
-    // 수정 버튼
+    // 수정
     document.querySelectorAll('.edit-btn').forEach(button => {
       button.addEventListener('click', () => {
         const id = parseInt(button.getAttribute('data-id'));
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
         const post = posts.find(p => p.id === id);
         if (!post) return;
-
-        // 수정할 글을 세션스토리지에 임시 저장
         sessionStorage.setItem('editPost', JSON.stringify(post));
-
-        // 글쓰기 페이지로 이동
-        loadPage('board/write.html');
+        if (typeof loadPage === 'function') {
+          loadPage('board/write.html');
+        } else {
+          alert('작성 페이지를 불러올 수 없습니다.');
+        }
       });
+    });
+
+    attachWriteBtnListener();
+  }
+
+  function attachWriteBtnListener() {
+    const goToWriteBtn = document.getElementById('goToWrite');
+    if (!goToWriteBtn) return;
+
+    // 초기화 위해 이벤트 제거 후 다시 등록
+    goToWriteBtn.onclick = null;
+
+    goToWriteBtn.addEventListener('click', () => {
+      const loggedInUser = sessionStorage.getItem('loggedInUser');
+      if (!loggedInUser) {
+        alert('로그인 후 글 작성이 가능합니다.');
+        if (typeof loadPage === 'function') loadPage('member/login.html');
+        else location.href = 'member/login.html';
+        return;
+      }
+      sessionStorage.removeItem('editPost');
+      if (typeof loadPage === 'function') loadPage('board/write.html');
+      else location.href = 'board/write.html';
     });
   }
 
-  document.getElementById('goToWrite').addEventListener('click', e => {
-    e.preventDefault();
-    sessionStorage.removeItem('editPost'); // 새 글 작성을 위한 초기화
-    loadPage('board/write.html');
-  });
+  // 초기 로드
+  loadPosts();
 
-  loadPosts(); // 초기 실행
+  
 </script>
+
+
+
+
+
+
+
 
 
 

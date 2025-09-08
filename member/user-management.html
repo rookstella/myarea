@@ -1,6 +1,54 @@
 <div>
   <h2>회원관리</h2>
-  <table border="1" cellpadding="8" cellspacing="0" style="width:100%; max-width:700px; margin:auto; border-collapse: collapse;">
+
+<style>
+  table {
+    width: 100%;
+    max-width: 1200px; /* 좀 더 넓게 */
+    margin: auto;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* 각 열별 너비 조절 */
+  th:nth-child(1), td:nth-child(1) { width: 12%; } /* 이름 */
+  th:nth-child(2), td:nth-child(2) { width: 10%; } /* 아이디 */
+  th:nth-child(3), td:nth-child(3) { width: 5%; }  /* 나이 */
+  th:nth-child(4), td:nth-child(4) { width: 6%; }  /* 성별 */
+  th:nth-child(5), td:nth-child(5) { width: 15%; } /* 전화번호 */
+  th:nth-child(6), td:nth-child(6) { width: 20%; } /* 이메일 */
+  th:nth-child(7), td:nth-child(7) { width: 6%; }  /* 승인 */
+  th:nth-child(8), td:nth-child(8) { width: 13%; } /* 관리 */
+
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+input[type="email"],
+select {
+  width: 95%; /* 약간 넓게 */
+  box-sizing: border-box;
+  min-width: 120px; /* 최소 너비 추가 */
+}
+
+
+  button {
+    margin: 2px;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+</style>
+
+
+  <table border="1" cellpadding="8" cellspacing="0" style="width:100%; max-width:1200px; margin:auto; border-collapse: collapse;">
     <thead>
       <tr style="background:#007bff; color:white;">
         <th>이름</th>

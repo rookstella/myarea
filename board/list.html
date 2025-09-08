@@ -10,6 +10,9 @@
 
 <script>
   const loggedInUser = sessionStorage.getItem('loggedInUser');
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  const currentUser = users.find(u => u.username === loggedInUser);
+  const isAdmin = currentUser?.isAdmin;
 
   function formatDate(isoString) {
     const date = new Date(isoString);
@@ -47,7 +50,7 @@
           ${post.content}
         </div>
         <div class="post-actions" style="display:none; margin-bottom:10px;">
-          ${loggedInUser === post.author ? `
+          ${(loggedInUser === post.author || isAdmin) ? `
             <button class="edit-btn" data-id="${post.id}" style="margin-right:10px; padding:6px 12px; background:#ffc107; color:#333; border:none; border-radius:4px; cursor:pointer;">수정</button>
             <button class="delete-btn" data-id="${post.id}" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">삭제</button>
           ` : ''}
@@ -104,7 +107,6 @@
     const goToWriteBtn = document.getElementById('goToWrite');
     if (!goToWriteBtn) return;
 
-    // 초기화 위해 이벤트 제거 후 다시 등록
     goToWriteBtn.onclick = null;
 
     goToWriteBtn.addEventListener('click', () => {
@@ -124,8 +126,8 @@
   // 초기 로드
   loadPosts();
 
-  
 </script>
+
 
 
 

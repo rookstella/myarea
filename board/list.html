@@ -1,11 +1,26 @@
-<div class="container" style="max-width:800px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); font-family:'Segoe UI', sans-serif;">
-  <h1 style="text-align:center; color:#333; margin-bottom:25px;">📋 게시판 목록</h1>
-  <div id="postList"></div>
+<div class="container" style="max-width:900px; margin:auto; background:#fff; padding:20px 20px 70px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.06); font-family:'Segoe UI', sans-serif;">
+  <h1 style="color:#333; margin:8px 0 14px; font-size:22px;">📋 게시판</h1>
 
-  <!-- 글쓰기 버튼 -->
-  <div style="text-align:center; margin-top:30px;">
-    <button id="goToWrite" style="padding:12px 20px; background:#007bff; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">✍️ 글 작성하기</button>
+  <div style="overflow:auto; border:1px solid #e9ecef; border-radius:10px;">
+    <table style="width:100%; border-collapse:collapse; min-width:680px;">
+      <thead>
+        <tr style="background:#f8f9fa; color:#495057;">
+          <th style="width:70px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">No</th>
+          <th style="padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:left;">제목</th>
+          <th style="width:140px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">글쓴이</th>
+          <th style="width:160px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">작성시간</th>
+        </tr>
+      </thead>
+      <tbody id="postTableBody"></tbody>
+    </table>
   </div>
+
+  <div style="max-width:360px; margin:16px auto 0; display:flex; align-items:center; gap:8px; border:1px solid #e9ecef; border-radius:24px; padding:6px 12px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#868e96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="10" r="7" stroke="#868e96" stroke-width="2"/></svg>
+    <input id="postSearch" type="text" placeholder="Search" style="flex:1; border:none; outline:none; font-size:14px; padding:6px;" />
+  </div>
+
+  <button id="goToWrite" style="position:fixed; right:calc(50% - 450px); bottom:24px; padding:10px 16px; background:#343a40; color:#fff; border:none; border-radius:20px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.15);">글쓰기</button>
 </div>
 
 <script>
@@ -22,42 +37,83 @@
     });
   }
 
-  function loadPosts() {
-    const postList = document.getElementById('postList');
+  function loadPosts(filterText = '') {
+    const tbody = document.getElementById('postTableBody');
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const keyword = String(filterText || '').toLowerCase();
+    const filtered = keyword
+      ? posts.filter(p => {
+          const title = (p.title || '').toLowerCase();
+          const content = (p.content || '').toLowerCase();
+          const author = (p.author || '').toLowerCase();
+          return title.includes(keyword) || content.includes(keyword) || author.includes(keyword);
+        })
+      : posts;
 
-    if (posts.length === 0) {
-      postList.innerHTML = '<p style="text-align:center; color:#777;">작성된 글이 없습니다.</p>';
-      attachWriteBtnListener();
-      return;
-    }
+    tbody.innerHTML = '';
 
-    postList.innerHTML = '';
+    // 최근 작성글이 위로 오도록 정렬
+    const sorted = [...filtered].sort((a, b) => {
+      const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bt - at;
+    });
 
-    posts.forEach(post => {
-      const wrapper = document.createElement('div');
-      wrapper.style.borderBottom = '1px solid #eee';
-      wrapper.style.padding = '20px 0';
+    // 번호는 1부터 증가 (또는 전체 기준 역순 번호를 원하면 계산 변경)
+    sorted.forEach((post, idx) => {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #f1f3f5';
 
-      wrapper.innerHTML = `
-        <h3 class="post-title" style="margin:0; color:#007bff; cursor:pointer;" data-id="${post.id}">
-          ${post.title}
-        </h3>
-        <p style="margin:5px 0 5px; color:#555; font-size:14px;">
-          작성자: <strong>${post.author}</strong> | 작성일: ${post.createdAt ? formatDate(post.createdAt) : '알 수 없음'} ${post.updatedAt ? `(수정됨: ${formatDate(post.updatedAt)})` : ''}
-        </p>
-        <div class="post-content" style="display:none; margin-bottom:10px; color:#444; line-height:1.6; white-space: pre-wrap;">
-          ${post.content}
-        </div>
-        <div class="post-actions" style="display:none; margin-bottom:10px;">
-          ${(loggedInUser === post.author || isAdmin) ? `
-            <button class="edit-btn" data-id="${post.id}" style="margin-right:10px; padding:6px 12px; background:#ffc107; color:#333; border:none; border-radius:4px; cursor:pointer;">수정</button>
-            <button class="delete-btn" data-id="${post.id}" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">삭제</button>
-          ` : ''}
-        </div>
+      const noTd = document.createElement('td');
+      noTd.style.textAlign = 'center';
+      noTd.style.padding = '12px';
+      noTd.textContent = String(idx + 1);
+
+      const titleTd = document.createElement('td');
+      titleTd.style.padding = '12px';
+      titleTd.style.cursor = 'pointer';
+      titleTd.style.color = '#212529';
+      titleTd.innerHTML = `<span class="post-title" data-id="${post.id}">${post.title}</span>`;
+
+      const authorTd = document.createElement('td');
+      authorTd.style.textAlign = 'center';
+      authorTd.style.padding = '12px';
+      authorTd.textContent = post.author || '';
+
+      const dateTd = document.createElement('td');
+      dateTd.style.textAlign = 'center';
+      dateTd.style.padding = '12px';
+      dateTd.textContent = post.createdAt ? formatDate(post.createdAt) : '';
+
+      tr.appendChild(noTd);
+      tr.appendChild(titleTd);
+      tr.appendChild(authorTd);
+      tr.appendChild(dateTd);
+      tbody.appendChild(tr);
+
+      // 내용 행 (토글)
+      const contentTr = document.createElement('tr');
+      const contentTd = document.createElement('td');
+      contentTd.colSpan = 4;
+      contentTd.style.background = '#fcfcfd';
+      contentTd.style.padding = '16px';
+      contentTd.style.display = 'none';
+      contentTd.innerHTML = `
+        <div style="color:#343a40; line-height:1.7; white-space:pre-wrap; margin-bottom:10px;">${post.content}</div>
+        ${(loggedInUser === post.author || isAdmin) ? `
+          <div>
+            <button class="edit-btn" data-id="${post.id}" style="margin-right:8px; padding:6px 12px; background:#ffe08a; color:#333; border:none; border-radius:6px; cursor:pointer;">수정</button>
+            <button class="delete-btn" data-id="${post.id}" style="padding:6px 12px; background:#dc3545; color:#fff; border:none; border-radius:6px; cursor:pointer;">삭제</button>
+          </div>
+        ` : ''}
       `;
+      contentTr.appendChild(contentTd);
+      tbody.appendChild(contentTr);
 
-      postList.appendChild(wrapper);
+      titleTd.addEventListener('click', () => {
+        const isHidden = contentTd.style.display === 'none';
+        contentTd.style.display = isHidden ? 'table-cell' : 'none';
+      });
     });
 
     // 제목 클릭 시 내용 토글
@@ -123,8 +179,16 @@
     });
   }
 
+  // 검색 바인딩
+  const searchInput = document.getElementById('postSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      loadPosts(e.target.value);
+    });
+  }
+
   // 초기 로드
-  loadPosts();
+  loadPosts('');
 
 </script>
 

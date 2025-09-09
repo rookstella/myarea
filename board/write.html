@@ -2,6 +2,13 @@
   <h2 style="text-align:center; margin-bottom:20px;">✍️ 글 작성하기</h2>
 
   <form id="postForm">
+    <label for="category" style="display:block; margin-bottom:6px; font-weight:bold;">유형</label>
+    <select id="category" name="category" required style="width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px;">
+      <option value="공지사항">공지사항</option>
+      <option value="자유게시판" selected>자유게시판</option>
+      <option value="회원요청">회원요청</option>
+      <option value="기타">기타</option>
+    </select>
     <label for="title" style="display:block; margin-bottom:6px; font-weight:bold;">제목</label>
     <input type="text" id="title" name="title" required style="width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px;">
 
@@ -30,6 +37,7 @@
   if (editPost) {
     postForm.title.value = editPost.title;
     postForm.content.value = editPost.content;
+    if (editPost.category) postForm.category.value = editPost.category;
   }
 
   postForm.addEventListener('submit', e => {
@@ -53,6 +61,7 @@
             ...p,
             title,
             content,
+            category: postForm.category.value,
             updatedAt: new Date().toISOString()
           };
         }
@@ -63,9 +72,15 @@
       // 새 글 작성
       const newPost = {
         id: Date.now(),
-        author: loggedInUser,
+        authorId: loggedInUser,
+        authorName: (function(){
+          const users = JSON.parse(localStorage.getItem('users')) || [];
+          const me = users.find(u => u.username === loggedInUser);
+          return me?.nickname || loggedInUser;
+        })(),
         title,
         content,
+        category: postForm.category.value,
         createdAt: new Date().toISOString(),
         updatedAt: null
       };

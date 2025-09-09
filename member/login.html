@@ -48,8 +48,8 @@
 
     // 로그인 후 UI 업데이트 및 페이지 이동
     if (typeof updateLoginStatus === 'function') updateLoginStatus();
-    if (typeof loadPage === 'function') loadPage('board/list.html');
-    else location.href = '../board/list.html';
+    if (typeof loadPage === 'function') loadPage('member/user-management.html');
+    else location.href = '../member/user-management.html';
 
     return;
   }

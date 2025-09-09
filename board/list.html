@@ -1,23 +1,34 @@
-<div class="container" style="max-width:900px; margin:auto; background:#fff; padding:20px 20px 70px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.06); font-family:'Segoe UI', sans-serif;">
+<div class="container" style="max-width:1200px; margin:auto; background:#fff; padding:20px 20px 70px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.06); font-family:'Segoe UI', sans-serif;">
   <h1 style="color:#333; margin:8px 0 14px; font-size:22px;">📋 게시판</h1>
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <label for="catFilter" style="font-size:14px; color:#555;">유형</label>
+      <select id="catFilter" style="padding:6px 10px; border:1px solid #dee2e6; border-radius:6px;">
+        <option value="전체">전체</option>
+        <option value="공지사항">공지사항</option>
+        <option value="자유게시판">자유게시판</option>
+        <option value="회원요청">회원요청</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
+    <div style="max-width:360px; display:flex; align-items:center; gap:8px; border:1px solid #e9ecef; border-radius:24px; padding:6px 12px; flex:1; min-width:240px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#868e96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="10" r="7" stroke="#868e96" stroke-width="2"/></svg>
+      <input id="postSearch" type="text" placeholder="Search" style="flex:1; border:none; outline:none; font-size:14px; padding:6px;" />
+    </div>
+  </div>
 
-  <div style="overflow:auto; border:1px solid #e9ecef; border-radius:10px;">
+  <div id="table_div" style="overflow:auto; border:1px solid #e9ecef; border-radius:10px;">
     <table style="width:100%; border-collapse:collapse; min-width:680px;">
       <thead>
         <tr style="background:#f8f9fa; color:#495057;">
           <th style="width:70px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">No</th>
           <th style="padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:left;">제목</th>
           <th style="width:140px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">글쓴이</th>
-          <th style="width:160px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">작성시간</th>
+          <th style="width:200px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">작성시간</th>
         </tr>
       </thead>
       <tbody id="postTableBody"></tbody>
     </table>
-  </div>
-
-  <div style="max-width:360px; margin:16px auto 0; display:flex; align-items:center; gap:8px; border:1px solid #e9ecef; border-radius:24px; padding:6px 12px;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#868e96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="10" r="7" stroke="#868e96" stroke-width="2"/></svg>
-    <input id="postSearch" type="text" placeholder="Search" style="flex:1; border:none; outline:none; font-size:14px; padding:6px;" />
   </div>
 
   <button id="goToWrite" style="display:block; margin:16px 0 0 auto; padding:10px 16px; background:#343a40; color:#fff; border:none; border-radius:20px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.15);">글쓰기</button>
@@ -37,52 +48,102 @@
     });
   }
 
+  const PAGE_SIZE = 10;
+  let currentPage = 1;
+  let currentCategory = '전체';
+
+  function renderPagination(total) {
+    let pager = document.getElementById('postPager');
+    if (!pager) {
+      pager = document.createElement('div');
+      pager.id = 'postPager';
+      pager.style.display = 'flex';
+      pager.style.gap = '6px';
+      pager.style.justifyContent = 'center';
+      pager.style.alignItems = 'center';
+      pager.style.margin = '12px auto 0';
+      const container = document.querySelector('.container');
+      container.appendChild(pager);
+    }
+    pager.innerHTML = '';
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const makeBtn = (label, page, disabled, active) => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.style.padding = '6px 10px';
+      b.style.border = '1px solid #dee2e6';
+      b.style.background = active ? '#007bff' : '#fff';
+      b.style.color = active ? '#fff' : '#000';
+      b.style.borderRadius = '6px';
+      b.disabled = !!disabled;
+      b.addEventListener('click', () => { currentPage = page; loadPosts(lastSearch); });
+      return b;
+    };
+    pager.appendChild(makeBtn('이전', Math.max(1, currentPage - 1), currentPage === 1, false));
+    for (let p = 1; p <= totalPages; p++) pager.appendChild(makeBtn(String(p), p, false, p === currentPage));
+    pager.appendChild(makeBtn('다음', Math.min(totalPages, currentPage + 1), currentPage === totalPages, false));
+  }
+
+  let lastSearch = '';
+
   function loadPosts(filterText = '') {
     const tbody = document.getElementById('postTableBody');
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    const keyword = String(filterText || '').toLowerCase();
+    lastSearch = filterText || '';
+    const keyword = String(lastSearch).toLowerCase();
     const filtered = keyword
       ? posts.filter(p => {
           const title = (p.title || '').toLowerCase();
           const content = (p.content || '').toLowerCase();
-          const author = (p.author || '').toLowerCase();
+          const author = (p.authorName || p.author || p.authorId || '').toLowerCase();
           return title.includes(keyword) || content.includes(keyword) || author.includes(keyword);
         })
       : posts;
 
+    const filteredByCat = (currentCategory === '전체') ? filtered : filtered.filter(p => (p.category || '기타') === currentCategory);
+
     tbody.innerHTML = '';
 
     // 최근 작성글이 위로 오도록 정렬
-    const sorted = [...filtered].sort((a, b) => {
+    const sorted = [...filteredByCat].sort((a, b) => {
       const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return bt - at;
     });
 
-    // 번호는 1부터 증가 (또는 전체 기준 역순 번호를 원하면 계산 변경)
-    sorted.forEach((post, idx) => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    const pageItems = sorted.slice(start, end);
+
+    pageItems.forEach((post, idx) => {
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid #f1f3f5';
 
       const noTd = document.createElement('td');
       noTd.style.textAlign = 'center';
       noTd.style.padding = '12px';
-      noTd.textContent = String(idx + 1);
+      noTd.textContent = String(start + idx + 1);
 
       const titleTd = document.createElement('td');
+
+       titleTd.style.textAlign = 'left';
       titleTd.style.padding = '12px';
       titleTd.style.cursor = 'pointer';
       titleTd.style.color = '#212529';
-      titleTd.innerHTML = `<span class="post-title" data-id="${post.id}">${post.title}</span>`;
+      const cat = post.category || '기타';
+      const catBadge = `<span style="display:inline-block; margin-right:6px; padding:2px 6px; border-radius:10px; background:#e9ecef; font-size:11px; color:#495057; vertical-align:middle;">${cat}</span>`;
+      titleTd.innerHTML = `${catBadge}<span class="post-title" data-id="${post.id}">${post.title}</span>`;
 
       const authorTd = document.createElement('td');
       authorTd.style.textAlign = 'center';
       authorTd.style.padding = '12px';
-      authorTd.textContent = post.author || '';
+      authorTd.textContent = post.authorName || post.author || post.authorId || '';
 
       const dateTd = document.createElement('td');
       dateTd.style.textAlign = 'center';
       dateTd.style.padding = '12px';
+      dateTd.style.whiteSpace = 'nowrap';
+      dateTd.style.fontSize = '13px';
       dateTd.textContent = post.createdAt ? formatDate(post.createdAt) : '';
 
       tr.appendChild(noTd);
@@ -100,7 +161,7 @@
       contentTd.style.display = 'none';
       contentTd.innerHTML = `
         <div style="color:#343a40; line-height:1.7; white-space:pre-wrap; margin-bottom:10px;">${post.content}</div>
-        ${(loggedInUser === post.author || isAdmin) ? `
+        ${((loggedInUser === (post.authorId || post.author)) || isAdmin) ? `
           <div>
             <button class="edit-btn" data-id="${post.id}" style="margin-right:8px; padding:6px 12px; background:#ffe08a; color:#333; border:none; border-radius:6px; cursor:pointer;">수정</button>
             <button class="delete-btn" data-id="${post.id}" style="padding:6px 12px; background:#dc3545; color:#fff; border:none; border-radius:6px; cursor:pointer;">삭제</button>
@@ -177,6 +238,8 @@
       if (typeof loadPage === 'function') loadPage('board/write.html');
       else location.href = 'board/write.html';
     });
+
+    renderPagination(sorted.length);
   }
 
   // 검색 바인딩
@@ -184,6 +247,15 @@
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       loadPosts(e.target.value);
+    });
+  }
+
+  const catFilter = document.getElementById('catFilter');
+  if (catFilter) {
+    catFilter.addEventListener('change', () => {
+      currentCategory = catFilter.value;
+      currentPage = 1;
+      loadPosts(lastSearch);
     });
   }
 

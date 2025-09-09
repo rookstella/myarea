@@ -74,16 +74,27 @@
     <label for="name">이름</label>
     <input type="text" id="name" name="name" required />
 
-    <label for="age">나이</label>
-    <input type="number" id="age" name="age" min="1" required />
+    <label for="nickname">닉네임</label>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <input type="text" id="nickname" name="nickname" placeholder="게시판에 표시될 이름" required style="flex:1;" />
+      <button type="button" id="checkNicknameBtn" style="padding:8px 12px; background:#6c757d; color:#fff; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">중복체크</button>
+    </div>
+    <div id="nicknameCheckMsg" style="margin-top:6px; font-size:12px;"></div>
 
-    <label for="gender">성별</label>
-    <select id="gender" name="gender" required>
-      <option value="">선택하세요</option>
-      <option value="남자">남자</option>
-      <option value="여자">여자</option>
-      <option value="기타">기타</option>
-    </select>
+    <label for="birth6">주민번호</label>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap; overflow-x:auto;">
+      <input type="text" id="birth6" name="birth6" placeholder="YYMMDD" inputmode="numeric" maxlength="6" required style="max-width:140px;" />
+      <span style="color:#999;">-</span>
+      <input type="text" id="rrn1" name="rrn1" placeholder="1 또는 2" inputmode="numeric" maxlength="1" pattern="^[12]$" required style="max-width:60px; text-align:center;" />
+      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
+      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
+      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
+      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
+      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
+      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
+    </div>
+    <div id="genderHint" style="margin-top:6px; font-size:12px; color:#6c757d;"></div>
+    <div id="ageHint" style="margin-top:4px; font-size:12px; color:#6c757d;"></div>
 
     <label for="username">아이디</label>
     <input type="text" id="username" name="username" required />
@@ -111,6 +122,9 @@
 <script>
   const signupForm = document.getElementById('signupForm');
   const successMsg = document.getElementById('successMsg');
+  const checkNicknameBtn = document.getElementById('checkNicknameBtn');
+  const nicknameInput = document.getElementById('nickname');
+  const nicknameMsg = document.getElementById('nicknameCheckMsg');
 
  signupForm.addEventListener('submit', function(e) {
   e.preventDefault();
@@ -123,10 +137,48 @@
     return;
   }
 
+  // 주민번호 앞/뒤 입력값 확인 및 성별 계산
+  const birth6 = signupForm.birth6.value.trim();
+  const rrn1 = signupForm.rrn1.value.trim();
+
+  if (!/^\d{6}$/.test(birth6)) {
+    alert('주민번호 앞자리는 YYMMDD 6자리 숫자여야 합니다.');
+    return;
+  }
+
+  if (!/^[12]$/.test(rrn1)) {
+    alert('주민번호 뒷자리 첫 숫자는 1 또는 2만 가능합니다.');
+    return;
+  }
+
+  const gender = rrn1 === '1' ? '남자' : '여자';
+
+  // 생년 계산 (1,2 → 1900s / 3,4 → 2000s)
+  const yy = parseInt(birth6.slice(0, 2), 10);
+  const mm = parseInt(birth6.slice(2, 4), 10);
+  const dd = parseInt(birth6.slice(4, 6), 10);
+  const century = (rrn1 === '1' || rrn1 === '2') ? 1900 : 2000;
+  const fullYear = century + yy;
+  const birthDate = new Date(fullYear, mm - 1, dd);
+
+  // 간단한 날짜 유효성 검사
+  if (birthDate.getFullYear() !== fullYear || (birthDate.getMonth() + 1) !== mm || birthDate.getDate() !== dd) {
+    alert('유효한 생년월일이 아닙니다. YYMMDD를 확인하세요.');
+    return;
+  }
+
+  // 만 나이 계산
+  const today = new Date();
+  let ageYears = today.getFullYear() - birthDate.getFullYear();
+  const hasHadBirthdayThisYear = (today.getMonth() > birthDate.getMonth()) || (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+  if (!hasHadBirthdayThisYear) ageYears -= 1;
+
   const newUser = {
     name: signupForm.name.value.trim(),
-    age: signupForm.age.value.trim(),
-    gender: signupForm.gender.value,
+    nickname: signupForm.nickname.value.trim(),
+    birthYymmdd: birth6,
+    gender: gender,
+    age: ageYears,
     username: signupForm.username.value.trim(),
     password: password,
     phone: signupForm.phone.value.trim(),
@@ -138,6 +190,11 @@
 
   if (users.some(u => u.username === newUser.username)) {
     alert('이미 존재하는 아이디입니다.');
+    return;
+  }
+
+  if (users.some(u => (u.nickname || '').toLowerCase() === newUser.nickname.toLowerCase())) {
+    alert('이미 존재하는 닉네임입니다.');
     return;
   }
 
@@ -153,6 +210,65 @@
       location.href = 'login.html';
     }
   }, 1500);
+});
+
+// 닉네임 중복 체크
+checkNicknameBtn.addEventListener('click', function() {
+  const nickname = nicknameInput.value.trim();
+  nicknameMsg.style.color = '#dc3545';
+  if (!nickname) {
+    nicknameMsg.textContent = '닉네임을 입력하세요.';
+    return;
+  }
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  const exists = users.some(u => (u.nickname || '').toLowerCase() === nickname.toLowerCase());
+  if (exists) {
+    nicknameMsg.textContent = '이미 사용 중인 닉네임입니다.';
+    nicknameMsg.style.color = '#dc3545';
+  } else {
+    nicknameMsg.textContent = '사용 가능한 닉네임입니다.';
+    nicknameMsg.style.color = '#28a745';
+  }
+});
+
+// 주민번호 뒷자리 첫 자리 변경 시 성별 힌트 표시
+document.getElementById('rrn1').addEventListener('input', function() {
+  const v = this.value.trim();
+  const hint = document.getElementById('genderHint');
+  const birth6 = document.getElementById('birth6').value.trim();
+  const ageHint = document.getElementById('ageHint');
+  // 한 자리만 유지
+  if (v.length > 1) this.value = v.charAt(0);
+  // 1,2 외 입력 즉시 제거
+  if (this.value && !/^[12]$/.test(this.value)) this.value = '';
+  if (v === '1') {
+    hint.textContent = '남성';
+  } else if (v === '2') {
+    hint.textContent = '여성';
+  } else {
+    hint.textContent = '';
+  }
+
+  // 간단한 나이 미리보기 (YYMMDD가 6자리일 때만)
+  if (/^\d{6}$/.test(birth6) && /^[1-4]$/.test(v)) {
+    const yy = parseInt(birth6.slice(0, 2), 10);
+    const mm = parseInt(birth6.slice(2, 4), 10);
+    const dd = parseInt(birth6.slice(4, 6), 10);
+    const century = (v === '1' || v === '2') ? 1900 : 2000;
+    const fullYear = century + yy;
+    const d = new Date(fullYear, mm - 1, dd);
+    if (d.getFullYear() === fullYear && (d.getMonth() + 1) === mm && d.getDate() === dd) {
+      const today = new Date();
+      let years = today.getFullYear() - d.getFullYear();
+      const hadBday = (today.getMonth() > d.getMonth()) || (today.getMonth() === d.getMonth() && today.getDate() >= d.getDate());
+      if (!hadBday) years -= 1;
+      ageHint.textContent = `만 나이: ${years}세`;
+    } else {
+      ageHint.textContent = '';
+    }
+  } else {
+    ageHint.textContent = '';
+  }
 });
 
 </script>

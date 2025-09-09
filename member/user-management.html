@@ -4,7 +4,7 @@
 <style>
   table {
     width: 100%;
-    max-width: 1200px; /* 좀 더 넓게 */
+    max-width: 1400px; /* 더 넓게 */
     margin: auto;
     border-collapse: collapse;
     table-layout: fixed;
@@ -19,15 +19,57 @@
     text-overflow: ellipsis;
   }
 
-  /* 각 열별 너비 조절 */
+  /* 각 열별 너비 조절 (열 추가 반영) */
   th:nth-child(1), td:nth-child(1) { width: 12%; } /* 이름 */
-  th:nth-child(2), td:nth-child(2) { width: 10%; } /* 아이디 */
-  th:nth-child(3), td:nth-child(3) { width: 8%; }  /* 나이 */
-  th:nth-child(4), td:nth-child(4) { width: 10%; }  /* 성별 */
-  th:nth-child(5), td:nth-child(5) { width: 15%; } /* 전화번호 */
-  th:nth-child(6), td:nth-child(6) { width: 20%; } /* 이메일 */
-  th:nth-child(7), td:nth-child(7) { width: 6%; }  /* 승인 */
-  th:nth-child(8), td:nth-child(8) { width: 13%; } /* 관리 */
+  th:nth-child(2), td:nth-child(2) { width: 14%; } /* 닉네임 */
+  th:nth-child(3), td:nth-child(3) { width: 12%; } /* 아이디 */
+  th:nth-child(4), td:nth-child(4) { width: 6%; }  /* 나이 */
+  th:nth-child(5), td:nth-child(5) { width: 6%; }  /* 성별 */
+  th:nth-child(6), td:nth-child(6) { width: 12%; } /* 생년월일 */
+  th:nth-child(7), td:nth-child(7) { width: 14%; } /* 전화번호 */
+  th:nth-child(8), td:nth-child(8) { width: 19%; } /* 이메일 */
+  th:nth-child(9), td:nth-child(9) { width: 13%; } /* 회원요청일 */
+  th:nth-child(10), td:nth-child(10) { width: 8%; } /* 상태 */
+  th:nth-child(11), td:nth-child(11) { width: 18%; } /* 관리 */
+
+  /* 상태 옵션 드롭다운 색상 */
+  select[data-field="status"] option[value="요청중"] {
+    background-color: #fd7e14;
+    color: #fff;
+  }
+  select[data-field="status"] option[value="승인"] {
+    background-color: #28a745;
+    color: #fff;
+  }
+  select[data-field="status"] option[value="반려"] {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  /* 페이징 */
+  .pagination {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+    margin: 12px auto 0;
+  }
+  .pagination button {
+    padding: 6px 10px;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .pagination button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .pagination .active {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+  }
 
 input[type="text"],
 input[type="number"],
@@ -52,12 +94,15 @@ select {
     <thead>
       <tr style="background:#007bff; color:white;">
         <th>이름</th>
+        <th>닉네임</th>
         <th>아이디</th>
         <th>나이</th>
         <th>성별</th>
+        <th>생년월일</th>
         <th>전화번호</th>
         <th>이메일</th>
-        <th>승인</th>
+        <th>회원요청일</th>
+        <th>상태</th>
         <th>관리</th>
       </tr>
     </thead>
@@ -68,6 +113,8 @@ select {
 <script>
 (function() {
   const userTableBody = document.getElementById('userTableBody');
+  const PAGE_SIZE = 10;
+  let currentPage = 1;
 
   // 로그인 여부 확인 및 비로그인 시 경고 후 로그인 페이지로
   const loggedInUser = sessionStorage.getItem('loggedInUser');
@@ -81,17 +128,79 @@ select {
     return; // 스크립트 진행 중단
   }
 
+  function formatBirth(yyMMdd) {
+    if (!yyMMdd || yyMMdd.length !== 6) return '';
+    const yy = yyMMdd.slice(0,2);
+    const mm = yyMMdd.slice(2,4);
+    const dd = yyMMdd.slice(4,6);
+    return `19${yy}-${mm}-${dd}`; // 표시용, 세기 여부는 저장된 rrn1이 없다면 1900s 가정
+  }
+
+  function formatDateTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });
+  }
+
+  function renderPagination(total) {
+    // 컨테이너 없으면 생성
+    let pager = document.getElementById('userPager');
+    if (!pager) {
+      pager = document.createElement('div');
+      pager.id = 'userPager';
+      pager.className = 'pagination';
+      const tableEl = document.querySelector('table');
+      tableEl.insertAdjacentElement('afterend', pager);
+    }
+    pager.innerHTML = '';
+
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+    const makeBtn = (label, page, disabled, active) => {
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      if (disabled) btn.disabled = true;
+      if (active) btn.classList.add('active');
+      btn.addEventListener('click', () => {
+        currentPage = page;
+        loadUsers();
+      });
+      return btn;
+    };
+
+    pager.appendChild(makeBtn('이전', Math.max(1, currentPage - 1), currentPage === 1, false));
+    for (let p = 1; p <= totalPages; p++) {
+      pager.appendChild(makeBtn(String(p), p, false, p === currentPage));
+    }
+    pager.appendChild(makeBtn('다음', Math.min(totalPages, currentPage + 1), currentPage === totalPages, false));
+  }
+
   function loadUsers() {
     const users = JSON.parse(localStorage.getItem('users')) || [];
     userTableBody.innerHTML = '';
 
-    users.forEach((user, index) => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    const paged = users.slice(start, end);
+
+    paged.forEach((user, indexInPage) => {
+      const index = start + indexInPage;
+      // 기본 필드 보정: status, requestDate
+      if (!user.status) {
+        user.status = user.approved ? '승인' : '요청중';
+      }
+      if (!user.requestDate) {
+        user.requestDate = user.createdAt || new Date().toISOString();
+      }
+
       const tr = document.createElement('tr');
 
       tr.innerHTML = `
-        <td><input type="text" value="${user.name}" data-index="${index}" data-field="name" /></td>
+        <td><input type="text" value="${user.name || ''}" data-index="${index}" data-field="name" /></td>
+        <td><input type="text" value="${user.nickname || ''}" data-index="${index}" data-field="nickname" /></td>
         <td>${user.username}</td>
-        <td><input type="number" value="${user.age}" data-index="${index}" data-field="age" min="1" /></td>
+        <td><input type="number" value="${user.age || ''}" data-index="${index}" data-field="age" min="0" /></td>
         <td>
           <select data-index="${index}" data-field="gender">
             <option value="남자" ${user.gender === '남자' ? 'selected' : ''}>남자</option>
@@ -99,10 +208,16 @@ select {
             <option value="기타" ${user.gender === '기타' ? 'selected' : ''}>기타</option>
           </select>
         </td>
-        <td><input type="tel" value="${user.phone}" data-index="${index}" data-field="phone" /></td>
-        <td><input type="email" value="${user.email}" data-index="${index}" data-field="email" /></td>
+        <td><input type="text" value="${user.birthYymmdd || ''}" data-index="${index}" data-field="birthYymmdd" placeholder="YYMMDD" /></td>
+        <td><input type="tel" value="${user.phone || ''}" data-index="${index}" data-field="phone" /></td>
+        <td><input type="email" value="${user.email || ''}" data-index="${index}" data-field="email" /></td>
+        <td>${formatDateTime(user.requestDate)}</td>
         <td>
-          <input type="checkbox" ${user.approved ? 'checked' : ''} data-index="${index}" data-field="approved" />
+          <select data-index="${index}" data-field="status">
+            <option value="요청중" ${user.status === '요청중' ? 'selected' : ''}>요청중</option>
+            <option value="승인" ${user.status === '승인' ? 'selected' : ''}>승인</option>
+            <option value="반려" ${user.status === '반려' ? 'selected' : ''}>반려</option>
+          </select>
         </td>
         <td>
           <button data-action="update" data-index="${index}">수정</button>
@@ -112,6 +227,28 @@ select {
 
       userTableBody.appendChild(tr);
     });
+    // 저장 (보정된 필드 반영)
+    localStorage.setItem('users', JSON.stringify(users));
+
+    // 상태 색상 적용 및 변경 시 갱신
+    const statusSelects = userTableBody.querySelectorAll('select[data-field="status"]');
+    const applyStatusStyle = (sel) => {
+      const v = sel.value;
+      let bg = '', fg = '#fff';
+      if (v === '승인') bg = '#28a745';
+      else if (v === '요청중') bg = '#fd7e14';
+      else if (v === '반려') bg = '#dc3545';
+      sel.style.backgroundColor = bg;
+      sel.style.color = fg;
+      sel.style.borderColor = bg;
+    };
+    statusSelects.forEach(sel => {
+      applyStatusStyle(sel);
+      sel.addEventListener('change', () => applyStatusStyle(sel));
+    });
+
+    // 페이징 렌더
+    renderPagination(users.length);
   }
 
   userTableBody.addEventListener('click', e => {
@@ -130,8 +267,10 @@ select {
         const rowInputs = userTableBody.querySelectorAll(`[data-index="${index}"]`);
         rowInputs.forEach(input => {
           const field = input.getAttribute('data-field');
-          if (field === 'approved') {
-            users[index][field] = input.checked;
+          if (field === 'status') {
+            const status = input.value;
+            users[index].status = status;
+            users[index].approved = (status === '승인');
           } else {
             users[index][field] = input.value;
           }

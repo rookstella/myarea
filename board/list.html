@@ -170,7 +170,10 @@
       contentTd.style.padding = '16px';
       contentTd.style.display = 'none';
       contentTd.innerHTML = `
-        <div style="color:#343a40; line-height:1.7; white-space:pre-wrap; margin-bottom:10px;">${post.content}</div>
+        <div style="color:#343a40; line-height:1.7; white-space:pre-wrap; margin-bottom:10px; text-align:left;">
+  ${post.content}
+</div>
+
         ${((loggedInUser === (post.authorId || post.author)) || isAdmin) ? `
           <div>
             <button class="edit-btn" data-id="${post.id}" style="margin-right:8px; padding:6px 12px; background:#ffe08a; color:#333; border:none; border-radius:6px; cursor:pointer;">수정</button>

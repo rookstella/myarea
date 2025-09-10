@@ -14,6 +14,7 @@
     <div style="max-width:360px; display:flex; align-items:center; gap:8px; border:1px solid #e9ecef; border-radius:24px; padding:6px 12px; flex:1; min-width:240px;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#868e96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="10" r="7" stroke="#868e96" stroke-width="2"/></svg>
       <input id="postSearch" type="text" placeholder="Search" style="flex:1; border:none; outline:none; font-size:14px; padding:6px;" />
+      <button id="searchBtn" style="padding:6px 12px; background:#007bff; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:12px;">검색</button>
     </div>
   </div>
 
@@ -24,7 +25,8 @@
           <th style="width:70px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">No</th>
           <th style="padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:left;">제목</th>
           <th style="width:140px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">글쓴이</th>
-          <th style="width:200px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">작성시간</th>
+          <th style="width:160px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">작성시간</th>
+          <th style="width:160px; padding:12px; border-bottom:1px solid #e9ecef; font-weight:600; text-align:center;">최종 수정일</th>
         </tr>
       </thead>
       <tbody id="postTableBody"></tbody>
@@ -146,16 +148,24 @@
       dateTd.style.fontSize = '13px';
       dateTd.textContent = post.createdAt ? formatDate(post.createdAt) : '';
 
+      const updateTd = document.createElement('td');
+      updateTd.style.textAlign = 'center';
+      updateTd.style.padding = '12px';
+      updateTd.style.whiteSpace = 'nowrap';
+      updateTd.style.fontSize = '13px';
+      updateTd.textContent = post.updatedAt ? formatDate(post.updatedAt) : '-';
+
       tr.appendChild(noTd);
       tr.appendChild(titleTd);
       tr.appendChild(authorTd);
       tr.appendChild(dateTd);
+      tr.appendChild(updateTd);
       tbody.appendChild(tr);
 
       // 내용 행 (토글)
       const contentTr = document.createElement('tr');
       const contentTd = document.createElement('td');
-      contentTd.colSpan = 4;
+      contentTd.colSpan = 5;
       contentTd.style.background = '#fcfcfd';
       contentTd.style.padding = '16px';
       contentTd.style.display = 'none';
@@ -218,6 +228,7 @@
     });
 
     attachWriteBtnListener();
+    renderPagination(sorted.length);
   }
 
   function attachWriteBtnListener() {
@@ -238,16 +249,25 @@
       if (typeof loadPage === 'function') loadPage('board/write.html');
       else location.href = 'board/write.html';
     });
-
-    renderPagination(sorted.length);
   }
 
   // 검색 바인딩
   const searchInput = document.getElementById('postSearch');
+  const searchBtn = document.getElementById('searchBtn');
+  
+  function performSearch() {
+    currentPage = 1;
+    loadPosts(searchInput.value);
+  }
+  
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      loadPosts(e.target.value);
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') performSearch();
     });
+  }
+  
+  if (searchBtn) {
+    searchBtn.addEventListener('click', performSearch);
   }
 
   const catFilter = document.getElementById('catFilter');

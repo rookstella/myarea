@@ -66,9 +66,10 @@
     cursor: not-allowed;
   }
   .pagination .active {
-    background: #007bff;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 50%, #004085 100%);
     color: #fff;
     border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
   }
 
 input[type="text"],
@@ -86,13 +87,36 @@ select {
     margin: 2px;
     padding: 4px 8px;
     cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  button[data-action="update"] {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+  }
+  
+  button[data-action="update"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  }
+  
+  button[data-action="delete"] {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+  }
+  
+  button[data-action="delete"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
   }
 </style>
 
 
   <table border="1" cellpadding="8" cellspacing="0" style="width:100%; max-width:1200px; margin:auto; border-collapse: collapse;">
     <thead>
-      <tr style="background:#007bff; color:white;">
+      <tr style="background: linear-gradient(135deg, #007bff 0%, #0056b3 50%, #004085 100%); color:white; box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);">
         <th>이름</th>
         <th>닉네임</th>
         <th>아이디</th>

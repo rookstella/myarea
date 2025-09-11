@@ -1,12 +1,116 @@
+<style>
+  .login-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .login-container h2 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 300;
+  }
+
+  .login-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .login-container input {
+    padding: 15px 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+    outline: none;
+  }
+
+  .login-container input:focus {
+    border-color: #007bff;
+  }
+
+  .login-container button {
+    padding: 15px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .login-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+  }
+
+  .login-container .error {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  .login-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    gap: 20px;
+  }
+
+  .login-container a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+  }
+
+  .login-container a:hover {
+    color: #0056b3;
+  }
+
+  .find-account {
+    display: flex;
+    gap: 10px;
+  }
+
+  .find-account a {
+    font-size: 13px;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 480px) {
+    .login-container {
+      margin: 20px;
+      padding: 30px 20px;
+    }
+  }
+</style>
+
 <div class="login-container">
   <h2>로그인</h2>
   <form id="loginForm">
     <input type="text" id="username" placeholder="아이디" required />
     <input type="password" id="password" placeholder="비밀번호" required />
     <button type="submit">로그인</button>
-    <p id="errorMessage" class="error" style="color:red;"></p>
+    <p id="errorMessage" class="error" style="display:none;"></p>
   </form>
-  <a href="#" data-page="member/signup.html">가입하기</a>
+  <div class="login-links">
+    <a href="#" data-page="member/signup.html">가입하기</a>
+    <div class="find-account">
+      <a href="#" onclick="alert('계정찾기 기능은 준비중입니다.'); return false;">계정찾기</a>
+      <span style="color: #ccc;">|</span>
+      <a href="#" onclick="alert('비밀번호 찾기 기능은 준비중입니다.'); return false;">비밀번호 찾기</a>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -76,15 +180,7 @@
 
     } else {
       errorMessage.textContent = "아이디 또는 비밀번호가 올바르지 않거나 승인되지 않은 회원입니다.";
+      errorMessage.style.display = 'block';
     }
   });
-
-  
 </script>
-
-
-
-
-
-
-

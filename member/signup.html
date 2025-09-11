@@ -1,279 +1,209 @@
-<style>
- .form-container {
-    max-width: 400px;
-    margin: 50px auto;
-    background-color: #fff;
-    padding: 30px 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .form-container h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #333;
-  }
-
-  form label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #333;
-  }
-
-  form input,
-  form select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    box-sizing: border-box;
-    transition: border-color 0.3s;
-  }
-
-  form input:focus,
-  form select:focus {
-    border-color: #4CAF50;
-    outline: none;
-  }
-
-  button[type="submit"] {
-    width: 100%;
-    padding: 12px;
-    margin-top: 25px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-
-  button[type="submit"]:hover {
-    background-color: #45a049;
-  }
-
-  .success {
-    font-size: 14px;
-    font-weight: bold;
-  }
-
-  @media (max-width: 480px) {
-    .form-container {
-      padding: 20px;
-      margin: 20px;
-    }
-  }
-</style>
-<div class="form-container">
-  <h2>회원가입</h2>
+<div class="container" style="max-width:600px; margin:auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+  <h2 style="text-align:center; color:#333; margin-bottom:30px;">회원가입</h2>
+  
   <form id="signupForm">
-    <label for="name">이름</label>
-    <input type="text" id="name" name="name" required />
-
-    <label for="nickname">닉네임</label>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <input type="text" id="nickname" name="nickname" placeholder="게시판에 표시될 이름" required style="flex:1;" />
-      <button type="button" id="checkNicknameBtn" style="padding:8px 12px; background:#6c757d; color:#fff; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">중복체크</button>
+    <div style="margin-bottom:15px; display:flex; align-items:center;">
+      <label style="width:120px; font-weight:bold; text-align:right; margin-right:15px;">이름:</label>
+      <input type="text" id="name" name="name" required style="flex:1; padding:10px; border:1px solid #ddd; border-radius:4px;">
     </div>
-    <div id="nicknameCheckMsg" style="margin-top:6px; font-size:12px;"></div>
-
-    <label for="birth6">주민번호</label>
-    <div style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap; overflow-x:auto;">
-      <input type="text" id="birth6" name="birth6" placeholder="YYMMDD" inputmode="numeric" maxlength="6" required style="max-width:140px;" />
-      <span style="color:#999;">-</span>
-      <input type="text" id="rrn1" name="rrn1" placeholder="1 또는 2" inputmode="numeric" maxlength="1" pattern="^[12]$" required style="max-width:60px; text-align:center;" />
-      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
-      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
-      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
-      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
-      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
-      <input type="text" value="●" disabled style="width:28px; text-align:center; background:#f8f9fa; color:#888; border:1px solid #e9ecef; border-radius:4px;" title="보안상 표시만 됩니다" />
+    
+    <div style="margin-bottom:15px; display:flex; align-items:center;">
+      <label style="width:120px; font-weight:bold; text-align:right; margin-right:15px;">아이디:</label>
+      <input type="text" id="username" name="username" required style="flex:1; padding:10px; border:1px solid #ddd; border-radius:4px;">
     </div>
-    <div id="genderHint" style="margin-top:6px; font-size:12px; color:#6c757d;"></div>
-    <div id="ageHint" style="margin-top:4px; font-size:12px; color:#6c757d;"></div>
-
-    <label for="username">아이디</label>
-    <input type="text" id="username" name="username" required />
-
-    <label for="password">비밀번호</label>
-    <input type="password" id="password" name="password" required />
-
-    <label for="confirmPassword">비밀번호 확인</label>
-    <input type="password" id="confirmPassword" name="confirmPassword" required />
-
-    <label for="phone">전화번호</label>
-    <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" required />
-
-    <label for="email">이메일</label>
-    <input type="email" id="email" name="email" required />
-
-    <button type="submit">가입하기</button>
-
-    <div class="success" id="successMsg" style="display: none; color: green; text-align: center; margin-top: 15px;">
-      🎉 회원가입이 완료되었습니다! 관리자 승인을 기다리세요.
+    
+    <div style="margin-bottom:15px;">
+      <div style="display:flex; align-items:center;">
+        <label style="width:120px; font-weight:bold; text-align:right; margin-right:15px;">닉네임:</label>
+        <div style="display:flex; gap:10px; flex:1;">
+          <input type="text" id="nickname" name="nickname" required style="flex:1; padding:10px; border:1px solid #ddd; border-radius:4px;">
+          <button type="button" id="checkNickname" style="padding:10px 15px; background:#007bff; color:white; border:none; border-radius:4px; cursor:pointer;">중복체크</button>
+        </div>
+      </div>
+      <div id="nicknameStatus" style="margin-left:135px; margin-top:5px; font-size:12px;"></div>
+    </div>
+    
+    <div style="margin-bottom:15px; display:flex; align-items:center;">
+      <label style="width:120px; font-weight:bold; text-align:right; margin-right:15px;">이메일:</label>
+      <input type="email" id="email" name="email" required style="flex:1; padding:10px; border:1px solid #ddd; border-radius:4px;">
+    </div>
+    
+    <div style="margin-bottom:15px;">
+      <div style="display:flex; align-items:center;">
+        <label style="width:120px; font-weight:bold; text-align:right; margin-right:15px;">주민번호:</label>
+        <div style="display:flex; align-items:center; gap:5px; flex:1;">
+          <input type="text" id="birth6" name="birth6" placeholder="YYMMDD" maxlength="6" required style="width:80px; padding:10px; border:1px solid #ddd; border-radius:4px;">
+          <span>-</span>
+          <input type="text" id="rrn1" name="rrn1" placeholder="1" maxlength="1" required style="width:40px; padding:10px; border:1px solid #ddd; border-radius:4px;">
+          <span style="color:#999;">●●●●●</span>
+        </div>
+      </div>
+      <div style="margin-left:135px; margin-top:5px; font-size:12px; color:#666;">
+        <span id="genderDisplay"></span> | <span id="ageDisplay"></span>
+      </div>
+    </div>
+    
+    <div style="margin-bottom:15px; display:flex; align-items:center;">
+      <label style="width:120px; font-weight:bold; text-align:right; margin-right:15px;">비밀번호:</label>
+      <input type="password" id="password" name="password" required style="flex:1; padding:10px; border:1px solid #ddd; border-radius:4px;">
+    </div>
+    
+    <div style="margin-bottom:20px; display:flex; align-items:center;">
+      <label style="width:120px; font-weight:bold; text-align:right; margin-right:15px;">비밀번호 확인:</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required style="flex:1; padding:10px; border:1px solid #ddd; border-radius:4px;">
+    </div>
+    
+    <div style="text-align:center;">
+      <button type="submit" style="padding:12px 30px; background:#007bff; color:white; border:none; border-radius:4px; cursor:pointer; font-size:16px;">가입하기</button>
     </div>
   </form>
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
   const signupForm = document.getElementById('signupForm');
-  const successMsg = document.getElementById('successMsg');
-  const checkNicknameBtn = document.getElementById('checkNicknameBtn');
   const nicknameInput = document.getElementById('nickname');
-  const nicknameMsg = document.getElementById('nicknameCheckMsg');
-
- signupForm.addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  const password = signupForm.password.value;
-  const confirmPassword = signupForm.confirmPassword.value;
-
-  if (password !== confirmPassword) {
-    alert('비밀번호가 일치하지 않습니다.');
-    return;
-  }
-
-  // 주민번호 앞/뒤 입력값 확인 및 성별 계산
-  const birth6 = signupForm.birth6.value.trim();
-  const rrn1 = signupForm.rrn1.value.trim();
-
-  if (!/^\d{6}$/.test(birth6)) {
-    alert('주민번호 앞자리는 YYMMDD 6자리 숫자여야 합니다.');
-    return;
-  }
-
-  if (!/^[12]$/.test(rrn1)) {
-    alert('주민번호 뒷자리 첫 숫자는 1 또는 2만 가능합니다.');
-    return;
-  }
-
-  const gender = rrn1 === '1' ? '남자' : '여자';
-
-  // 생년 계산 (1,2 → 1900s / 3,4 → 2000s)
-  const yy = parseInt(birth6.slice(0, 2), 10);
-  const mm = parseInt(birth6.slice(2, 4), 10);
-  const dd = parseInt(birth6.slice(4, 6), 10);
-  const century = (rrn1 === '1' || rrn1 === '2') ? 1900 : 2000;
-  const fullYear = century + yy;
-  const birthDate = new Date(fullYear, mm - 1, dd);
-
-  // 간단한 날짜 유효성 검사
-  if (birthDate.getFullYear() !== fullYear || (birthDate.getMonth() + 1) !== mm || birthDate.getDate() !== dd) {
-    alert('유효한 생년월일이 아닙니다. YYMMDD를 확인하세요.');
-    return;
-  }
-
-  // 만 나이 계산
-  const today = new Date();
-  let ageYears = today.getFullYear() - birthDate.getFullYear();
-  const hasHadBirthdayThisYear = (today.getMonth() > birthDate.getMonth()) || (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
-  if (!hasHadBirthdayThisYear) ageYears -= 1;
-
-  const newUser = {
-    name: signupForm.name.value.trim(),
-    nickname: signupForm.nickname.value.trim(),
-    birthYymmdd: birth6,
-    gender: gender,
-    age: ageYears,
-    username: signupForm.username.value.trim(),
-    password: password,
-    phone: signupForm.phone.value.trim(),
-    email: signupForm.email.value.trim(),
-    approved: false // 승인 대기 상태
-  };
-
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-
-  if (users.some(u => u.username === newUser.username)) {
-    alert('이미 존재하는 아이디입니다.');
-    return;
-  }
-
-  if (users.some(u => (u.nickname || '').toLowerCase() === newUser.nickname.toLowerCase())) {
-    alert('이미 존재하는 닉네임입니다.');
-    return;
-  }
-
-  users.push(newUser);
-  localStorage.setItem('users', JSON.stringify(users));
-
-  successMsg.style.display = 'block';
-
-  setTimeout(() => {
-    if (window.loadPage) {
-      loadPage('member/login.html');
-    } else {
-      location.href = 'login.html';
+  const checkNicknameBtn = document.getElementById('checkNickname');
+  const nicknameStatus = document.getElementById('nicknameStatus');
+  const birth6Input = document.getElementById('birth6');
+  const rrn1Input = document.getElementById('rrn1');
+  const genderDisplay = document.getElementById('genderDisplay');
+  const ageDisplay = document.getElementById('ageDisplay');
+  
+  let nicknameChecked = false;
+  
+  // 닉네임 중복 체크
+  checkNicknameBtn.addEventListener('click', function() {
+    const nickname = nicknameInput.value.trim();
+    if (!nickname) {
+      nicknameStatus.textContent = '닉네임을 입력해주세요.';
+      nicknameStatus.style.color = '#dc3545';
+      nicknameChecked = false;
+      return;
     }
-  }, 1500);
-});
-
-// 닉네임 중복 체크
-checkNicknameBtn.addEventListener('click', function() {
-  const nickname = nicknameInput.value.trim();
-  nicknameMsg.style.color = '#dc3545';
-  if (!nickname) {
-    nicknameMsg.textContent = '닉네임을 입력하세요.';
-    return;
-  }
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-  const exists = users.some(u => (u.nickname || '').toLowerCase() === nickname.toLowerCase());
-  if (exists) {
-    nicknameMsg.textContent = '이미 사용 중인 닉네임입니다.';
-    nicknameMsg.style.color = '#dc3545';
-  } else {
-    nicknameMsg.textContent = '사용 가능한 닉네임입니다.';
-    nicknameMsg.style.color = '#28a745';
-  }
-});
-
-// 주민번호 뒷자리 첫 자리 변경 시 성별 힌트 표시
-document.getElementById('rrn1').addEventListener('input', function() {
-  const v = this.value.trim();
-  const hint = document.getElementById('genderHint');
-  const birth6 = document.getElementById('birth6').value.trim();
-  const ageHint = document.getElementById('ageHint');
-  // 한 자리만 유지
-  if (v.length > 1) this.value = v.charAt(0);
-  // 1,2 외 입력 즉시 제거
-  if (this.value && !/^[12]$/.test(this.value)) this.value = '';
-  if (v === '1') {
-    hint.textContent = '남성';
-  } else if (v === '2') {
-    hint.textContent = '여성';
-  } else {
-    hint.textContent = '';
-  }
-
-  // 간단한 나이 미리보기 (YYMMDD가 6자리일 때만)
-  if (/^\d{6}$/.test(birth6) && /^[1-4]$/.test(v)) {
-    const yy = parseInt(birth6.slice(0, 2), 10);
-    const mm = parseInt(birth6.slice(2, 4), 10);
-    const dd = parseInt(birth6.slice(4, 6), 10);
-    const century = (v === '1' || v === '2') ? 1900 : 2000;
-    const fullYear = century + yy;
-    const d = new Date(fullYear, mm - 1, dd);
-    if (d.getFullYear() === fullYear && (d.getMonth() + 1) === mm && d.getDate() === dd) {
-      const today = new Date();
-      let years = today.getFullYear() - d.getFullYear();
-      const hadBday = (today.getMonth() > d.getMonth()) || (today.getMonth() === d.getMonth() && today.getDate() >= d.getDate());
-      if (!hadBday) years -= 1;
-      ageHint.textContent = `만 나이: ${years}세`;
+    
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const existingUser = users.find(user => user.nickname === nickname);
+    
+    if (existingUser) {
+      nicknameStatus.textContent = '이미 사용중인 닉네임입니다.';
+      nicknameStatus.style.color = '#dc3545';
+      nicknameChecked = false;
     } else {
-      ageHint.textContent = '';
+      nicknameStatus.textContent = '사용 가능한 닉네임입니다.';
+      nicknameStatus.style.color = '#28a745';
+      nicknameChecked = true;
     }
-  } else {
-    ageHint.textContent = '';
+  });
+  
+  // 주민번호 뒷자리 첫번째 숫자만 1,2 입력 가능
+  rrn1Input.addEventListener('input', function() {
+    const value = this.value;
+    if (value && value !== '1' && value !== '2') {
+      this.value = '';
+    }
+    updateGenderAndAge();
+  });
+  
+  // 생년월일 입력시 성별과 나이 업데이트
+  birth6Input.addEventListener('input', updateGenderAndAge);
+  
+  function updateGenderAndAge() {
+    const birth6 = birth6Input.value;
+    const rrn1 = rrn1Input.value;
+    
+    if (birth6.length === 6 && rrn1) {
+      // 성별 표시
+      const gender = rrn1 === '1' ? '남성' : '여성';
+      genderDisplay.textContent = gender;
+      
+      // 나이 계산 (만 나이)
+      const year = parseInt(birth6.substring(0, 2));
+      const month = parseInt(birth6.substring(2, 4));
+      const day = parseInt(birth6.substring(4, 6));
+      
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentDay = currentDate.getDate();
+      
+      // 2000년대 출생인지 1900년대 출생인지 판단
+      const fullYear = year <= currentYear % 100 ? 2000 + year : 1900 + year;
+      
+      let age = currentYear - fullYear;
+      if (currentMonth < month || (currentMonth === month && currentDay < day)) {
+        age--;
+      }
+      
+      ageDisplay.textContent = `만 ${age}세`;
+    } else {
+      genderDisplay.textContent = '';
+      ageDisplay.textContent = '';
+    }
   }
+  
+  // 폼 제출
+  signupForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // 닉네임 중복 체크 확인
+    if (!nicknameChecked) {
+      alert('닉네임 중복 체크를 해주세요.');
+      return;
+    }
+    
+    const name = document.getElementById('name').value;
+    const username = document.getElementById('username').value;
+    const nickname = document.getElementById('nickname').value;
+    const email = document.getElementById('email').value;
+    const birth6 = document.getElementById('birth6').value;
+    const rrn1 = document.getElementById('rrn1').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // 비밀번호 확인
+    if (password !== confirmPassword) {
+      alert('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+    
+    // 기존 사용자 데이터 가져오기
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    // 아이디 중복 체크
+    const existingUser = users.find(user => user.username === username);
+    if (existingUser) {
+      alert('이미 존재하는 아이디입니다.');
+      return;
+    }
+    
+    // 새 사용자 데이터 생성
+    const newUser = {
+      id: Date.now(),
+      name: name,
+      username: username,
+      nickname: nickname,
+      email: email,
+      birthYymmdd: birth6,
+      gender: rrn1 === '1' ? '남성' : '여성',
+      age: parseInt(ageDisplay.textContent.replace('만 ', '').replace('세', '')),
+      password: password,
+      requestDate: new Date().toISOString(),
+      status: '요청중',
+      approved: false,
+      isAdmin: false
+    };
+    
+    // 사용자 데이터 저장
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+    
+    alert('회원가입이 완료되었습니다.');
+    
+    // 로그인 페이지로 이동
+    if (window.parent && window.parent.loadPage) {
+      window.parent.loadPage('member/login.html');
+    }
+  });
 });
-
 </script>
-
-
-
-
-
